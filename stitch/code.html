@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Handwriting Generator Redesign V3 Premium</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Ma+Shan+Zheng&amp;family=Caveat:wght@400;700&amp;family=Kalam:wght@300;400;700&amp;display=swap" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              navy: {
+                800: "#1B2A41",
+                900: "#0F172A",
+              },
+              cream: {
+                50: "#FFFAF0",
+                100: "#FDFBF7",
+                200: "#F3EFE0",
+              },
+              accent: "#C6A87C", // Muted Gold/Bronze
+            },
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              handwriting: ["Ma Shan Zheng", "cursive"],
+              caveat: ["Caveat", "cursive"],
+              kalam: ["Kalam", "cursive"],
+            },
+            boxShadow: {
+              'card': '0 20px 40px -10px rgba(0, 0, 0, 0.1), 0 10px 20px -10px rgba(0,0,0,0.05)',
+              'paper': '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(0,0,0,0.05)',
+              'inner-tight': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+            }
+          },
+        },
+      };
+    </script>
+<style>
+        body {
+            background-color: #E8E6DF;background-image: radial-gradient(#D6D3C9 1px, transparent 1px);
+            background-size: 20px 20px;
+        }.glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }.aged-paper {
+            background-color: #fdfbf7;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+            box-shadow: 
+                0 1px 2px rgba(0,0,0,0.05), 
+                0 10px 30px rgba(0,0,0,0.1),
+                inset 0 0 40px rgba(198, 168, 124, 0.1); 
+            position: relative;
+        }
+        .aged-paper::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to bottom right, rgba(255,255,255,0.2), rgba(0,0,0,0.02));
+            pointer-events: none;
+        }input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: #E2E8F0;
+            border-radius: 999px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #1B2A41;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            transition: transform 0.1s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }.custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(27, 42, 65, 0.1);
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body class="text-navy-800 h-screen flex flex-col overflow-hidden selection:bg-accent selection:text-white">
+<header class="h-16 flex items-center justify-between px-8 bg-transparent z-50">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-navy-800 rounded-xl flex items-center justify-center text-white shadow-xl">
+<span class="material-symbols-outlined text-xl">ink_pen</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tight text-navy-800">老王手写体 <span class="font-normal text-navy-800/60 ml-1">Pro</span></h1>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-white text-navy-800 border border-gray-200 shadow-sm hover:shadow hover:bg-gray-50 text-sm font-semibold transition-all">
+<span class="material-symbols-outlined text-lg">print</span>
+        Print
+    </button>
+<button class="flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-navy-800 text-white shadow-lg shadow-navy-800/20 hover:bg-navy-900 hover:shadow-xl text-sm font-semibold transition-all">
+<span class="material-symbols-outlined text-lg">download</span>
+        Export
+    </button>
+</div>
+</header>
+<main class="flex-1 flex overflow-hidden p-6 pt-2 gap-8">
+<aside class="w-[420px] glass-panel rounded-3xl shadow-card flex flex-col overflow-hidden shrink-0 border border-white/40 h-full">
+<div class="p-6 flex-1 overflow-y-auto custom-scrollbar space-y-8">
+<section class="space-y-3">
+<div class="flex items-center justify-between">
+<label class="text-xs font-bold uppercase tracking-widest text-navy-800/60 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">edit_note</span> Content
+                    </label>
+<span class="text-[10px] font-mono text-navy-800/50 bg-white/50 px-2 py-0.5 rounded-full">48 / 5000</span>
+</div>
+<div class="relative group">
+<textarea class="w-full h-40 p-4 rounded-2xl border border-gray-200 bg-white/50 focus:bg-white focus:ring-2 focus:ring-navy-800/20 focus:border-navy-800 transition-all resize-none text-sm leading-relaxed shadow-inner-tight placeholder:text-gray-400" placeholder="Start typing your masterpiece...">这是一段手写体测试文字。
+你可以输入任何内容，
+系统会自动生成手写效果。
+适合用于视频录制、
+笔记展示等场景。</textarea>
+<button class="absolute bottom-3 right-3 p-1.5 bg-white shadow-sm rounded-lg hover:text-accent transition-colors border border-gray-100 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-200" title="AI Enhance">
+<span class="material-symbols-outlined text-lg">auto_awesome</span>
+</button>
+</div>
+</section>
+<section class="space-y-3">
+<label class="text-xs font-bold uppercase tracking-widest text-navy-800/60 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">font_download</span> Typeface
+                    </label>
+<div class="grid grid-cols-2 gap-3">
+<div class="cursor-pointer border-2 border-navy-800 bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all">
+<div class="text-lg font-handwriting mb-1 truncate">清新手写体</div>
+<div class="text-[10px] text-gray-400 font-sans uppercase tracking-wide">Selected</div>
+</div>
+<div class="cursor-pointer border border-gray-200 bg-white/50 p-3 rounded-xl hover:border-navy-800/30 hover:bg-white transition-all opacity-70 hover:opacity-100">
+<div class="text-lg font-caveat mb-1 truncate">Caveat Brush</div>
+<div class="text-[10px] text-gray-400 font-sans uppercase tracking-wide">Latin</div>
+</div>
+<div class="cursor-pointer border border-gray-200 bg-white/50 p-3 rounded-xl hover:border-navy-800/30 hover:bg-white transition-all opacity-70 hover:opacity-100">
+<div class="text-lg font-kalam mb-1 truncate">Kalam Regular</div>
+<div class="text-[10px] text-gray-400 font-sans uppercase tracking-wide">Mixed</div>
+</div>
+</div>
+</section>
+<section class="space-y-6 pt-2">
+<label class="text-xs font-bold uppercase tracking-widest text-navy-800/60 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">tune</span> Adjustments
+                    </label>
+<div class="space-y-3">
+<div class="flex justify-between items-end">
+<span class="text-xs font-medium text-navy-800">Spacing</span>
+<span class="text-[10px] font-mono text-navy-800/60 bg-gray-100 px-1.5 py-0.5 rounded">1.8</span>
+</div>
+<div class="relative h-6 flex items-center">
+<input max="3" min="1" step="0.1" type="range" value="1.8"/>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-end">
+<span class="text-xs font-medium text-navy-800">Chaos</span>
+<span class="text-[10px] font-mono text-navy-800/60 bg-gray-100 px-1.5 py-0.5 rounded">61%</span>
+</div>
+<div class="relative h-6 flex items-center">
+<input max="100" min="0" type="range" value="61"/>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-end">
+<span class="text-xs font-medium text-navy-800">Ink Blot</span>
+<span class="text-[10px] font-mono text-navy-800/60 bg-gray-100 px-1.5 py-0.5 rounded">3%</span>
+</div>
+<div class="relative h-6 flex items-center">
+<input max="20" min="0" type="range" value="3"/>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 pt-2">
+<div class="space-y-1.5">
+<label class="text-[10px] font-semibold text-gray-500 uppercase">Paper Size</label>
+<select class="w-full bg-white/50 border-gray-200 rounded-lg text-sm focus:ring-navy-800 focus:border-navy-800 py-2">
+<option>A4 Portrait</option>
+<option>A4 Landscape</option>
+</select>
+</div>
+<div class="space-y-1.5">
+<label class="text-[10px] font-semibold text-gray-500 uppercase">Background</label>
+<select class="w-full bg-white/50 border-gray-200 rounded-lg text-sm focus:ring-navy-800 focus:border-navy-800 py-2">
+<option>Lined Cream</option>
+<option>Grid White</option>
+<option>Plain Parchment</option>
+</select>
+</div>
+</div>
+</section>
+</div>
+<div class="p-6 bg-white/40 border-t border-white/50 backdrop-blur-md">
+<button class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-navy-800 text-white shadow-lg shadow-navy-800/20 hover:bg-navy-900 hover:shadow-xl text-sm font-semibold transition-all">
+<span class="material-symbols-outlined text-lg">history_edu</span>
+        Generate Preview
+    </button>
+</div>
+</aside>
+<section class="flex-1 relative flex flex-col items-center justify-center h-full">
+<div class="relative w-full h-full overflow-auto flex justify-center items-center p-8 custom-scrollbar">
+<div class="aged-paper w-[600px] min-h-[850px] shadow-paper rounded-[2px] p-16 relative transition-transform duration-500 transform hover:scale-[1.01]">
+<div class="absolute left-16 top-0 bottom-0 w-px bg-red-300/40"></div>
+<div class="absolute left-0 top-0 bottom-0 w-16 flex flex-col items-center py-12 gap-8 opacity-60">
+<div class="w-2.5 h-2.5 rounded-full bg-gray-300/80 shadow-inner"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-gray-300/80 shadow-inner"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-gray-300/80 shadow-inner"></div>
+</div>
+<div class="ml-8 font-handwriting text-2xl leading-[2.5rem] text-navy-800/90 tracking-wide relative z-10">
+<div class="absolute inset-0 -z-10 pointer-events-none" style="background-image: linear-gradient(transparent 95%, rgba(0,0,0,0.05) 96%); background-size: 100% 2.5rem; top: 0.4rem;"></div>
+<div class="relative inline-block mb-1" style="transform: rotate(-0.5deg) translateX(4px);">
+                            这是一段手写体测试文字。
+                        </div>
+<br/>
+<div class="relative inline-block mb-1" style="transform: rotate(0.8deg) translateX(-2px);">
+                            你可以输入任何内容，
+                        </div>
+<br/>
+<div class="relative inline-block mb-1" style="transform: rotate(-0.2deg) translateX(8px);">
+                            系统会自动生成手写效果。
+                        </div>
+<br/>
+<div class="h-10"></div>
+<div class="relative inline-block mb-1 group" style="transform: rotate(0.5deg) translateX(15px);">
+                            适合用于视频录制、
+<div class="absolute -top-2 -right-4 w-6 h-6 bg-navy-800/10 rounded-full blur-[2px] opacity-60"></div>
+</div>
+<br/>
+<div class="relative inline-block mb-1" style="transform: rotate(-0.7deg) translateX(6px);">
+                            笔记展示等场景。
+                        </div>
+</div>
+<div class="absolute bottom-12 right-12 text-xs font-mono text-gray-400/80 flex flex-col items-end gap-1">
+<p class="tracking-widest">NO. 001482</p>
+<p class="border-b border-gray-300/50 pb-0.5 w-24 text-right">Oct 24, 2024</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<script>
+        // Simple script to update slider values visually
+        const sliders = document.querySelectorAll('input[type="range"]');
+        sliders.forEach(slider => {
+            slider.addEventListener('input', (e) => {
+                const valueSpan = e.target.parentElement.previousElementSibling.querySelector('span:last-child');
+                if (valueSpan) {
+                    let suffix = "";
+                    if (e.target.max > 50) suffix = "%";
+                    else if (e.target.step === "0.1") suffix = "";
+                    else suffix = "px";
+                    if (e.target.parentElement.previousElementSibling.innerText.includes("Spacing")) suffix = "";
+                    valueSpan.innerText = e.target.value + suffix;
+                }
+            });
+        });
+    </script>
+</body></html>
