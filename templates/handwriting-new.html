@@ -567,23 +567,32 @@
 
         #canvas-container {
             margin: 18px;
-            background: #fff;
-            border-radius: 8px;
+            background: #d9d9d9;
+            border-radius: 12px;
             border: 1px solid rgba(148, 163, 184, 0.24);
             box-shadow: 0 6px 22px rgba(15, 23, 42, 0.08);
             overflow: auto;
             flex: 1;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
-            padding: 16px;
+            padding: 18px;
+        }
+
+        .paper-stage {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
         }
 
         canvas {
             display: block;
-            max-width: 100%;
+            max-width: none;
             height: auto;
             border-radius: 4px;
+            background: #fff;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
         }
 
         .text-editor details {
@@ -787,10 +796,31 @@
             </div>
 
             <div class="section-title">视觉参数</div>
-            <div class="form-group" style="display:none;">
+            <div class="form-group">
                 <label for="font-select">字体选择</label>
                 <select id="font-select">
+                    <option value="清松手写体1-圆润">清松手写体1-圆润</option>
+                    <option value="清松手写体2-秀气">清松手写体2-秀气</option>
+                    <option value="清松手写体3-呆萌">清松手写体3-呆萌</option>
+                    <option value="清松手写体4-POP">清松手写体4-POP</option>
                     <option value="清松手写体5-行楷" selected>清松手写体5-行楷</option>
+                    <option value="清松手写体6-Q萌">清松手写体6-Q萌</option>
+                    <option value="清松手写体7-飘逸">清松手写体7-飘逸</option>
+                    <option value="清松手写体8-随性">清松手写体8-随性</option>
+                    <option value="沐瑶软笔手写体">沐瑶软笔手写体</option>
+                    <option value="沐瑶随心手写体">沐瑶随心手写体</option>
+                    <option value="内海字体">内海字体</option>
+                    <option value="她屿山海">她屿山海</option>
+                    <option value="栗壳坚坚体">栗壳坚坚体</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="layout-mode-select">渲染模式</label>
+                <select id="layout-mode-select">
+                    <option value="uniform" selected>均匀模式（横竖均匀）</option>
+                    <option value="structured-fill">结构铺满模式（分区排版）</option>
+                    <option value="mindmap-annotated">思维导图模式（结构+标注）</option>
                 </select>
             </div>
 
@@ -891,11 +921,14 @@
                     <div class="preview-meta">
                         <span class="meta-chip" id="meta-paper">A4纸-纵向</span>
                         <span class="meta-chip" id="meta-font">清松手写体5-行楷</span>
+                        <span class="meta-chip" id="meta-mode">均匀模式</span>
                         <span class="meta-chip" id="meta-size">24px</span>
                     </div>
                 </div>
                 <div id="canvas-container">
-                    <canvas id="handwriting-canvas"></canvas>
+                    <div class="paper-stage">
+                        <canvas id="handwriting-canvas"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -967,6 +1000,7 @@
         const ctx = canvas.getContext('2d');
         const textInput = document.getElementById('text-input');
         const fontSelect = document.getElementById('font-select');
+        const layoutModeSelect = document.getElementById('layout-mode-select');
         const paperSelect = document.getElementById('paper-select');
         const paperBgSelect = document.getElementById('paper-bg-select');
         const positionSlider = document.getElementById('position-slider');
@@ -976,8 +1010,8 @@
         const weightSlider = document.getElementById('weight-slider');
         const metaPaper = document.getElementById('meta-paper');
         const metaFont = document.getElementById('meta-font');
+        const metaMode = document.getElementById('meta-mode');
         const metaSize = document.getElementById('meta-size');
-        const canvasContainer = document.getElementById('canvas-container');
 
         // 纸张尺寸配置（600dpi 实际像素）
         const paperSizes = {
@@ -1006,15 +1040,8 @@
 
         const PREVIEW_BASE_WIDTH = 700;
         const REAL_PAPER_BASE_LINEHEIGHT = 1.8;
-
-        function getPreviewScale(paper) {
-            const containerWidth = Math.max(420, (canvasContainer?.clientWidth || 860) - 40);
-            const containerHeight = Math.max(560, (canvasContainer?.clientHeight || 980) - 40);
-            const widthScale = containerWidth / paper.w;
-            const heightScale = containerHeight / paper.h;
-            const fitScale = Math.min(widthScale, heightScale);
-            return Math.max(0.03, fitScale);
-        }
+        const PREVIEW_DPI = 84;
+        const PAPER_BASE_DPI = 600;
 
         // 真实纸张版式配置（按原图比例）
         const realPaperLayouts = {
@@ -1216,6 +1243,7 @@
         // 监听参数变化，自动刷新
         textInput.addEventListener('input', renderHandwriting);
         fontSelect.addEventListener('change', renderHandwriting);
+        layoutModeSelect.addEventListener('change', renderHandwriting);
         paperSelect.addEventListener('change', renderHandwriting);
         paperBgSelect.addEventListener('change', renderHandwriting);
         positionSlider.addEventListener('input', renderHandwriting);
@@ -1228,9 +1256,639 @@
         function updatePreviewMeta() {
             const paperText = paperSelect.options[paperSelect.selectedIndex]?.text || paperSelect.value;
             const fontText = fontSelect.options[fontSelect.selectedIndex]?.text || fontSelect.value;
+            const modeLabelMap = {
+                'uniform': '均匀模式',
+                'structured-fill': '结构铺满模式',
+                'mindmap-annotated': '思维导图模式'
+            };
+            const modeText = modeLabelMap[layoutModeSelect.value] || '均匀模式';
             if (metaPaper) metaPaper.textContent = paperText.split('(')[0].trim();
             if (metaFont) metaFont.textContent = fontText;
+            if (metaMode) metaMode.textContent = modeText;
             if (metaSize) metaSize.textContent = `${fontsizeSlider.value}px`;
+        }
+
+        function parseStructuredBlocks(rawText) {
+            const lines = rawText.split('\n');
+            const blocks = [];
+
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed) {
+                    blocks.push({ type: 'spacer', text: '' });
+                    continue;
+                }
+
+                if (/^###\s+/.test(trimmed)) {
+                    blocks.push({ type: 'h2', text: trimmed.replace(/^###\s+/, '') });
+                } else if (/^##\s+/.test(trimmed)) {
+                    blocks.push({ type: 'h1', text: trimmed.replace(/^##\s+/, '') });
+                } else if (/^#\s+/.test(trimmed)) {
+                    blocks.push({ type: 'h0', text: trimmed.replace(/^#\s+/, '') });
+                } else if (/^[-*]\s+/.test(trimmed) || /^\d+[.)、]\s+/.test(trimmed)) {
+                    blocks.push({ type: 'bullet', text: trimmed.replace(/^[-*]\s+/, '').replace(/^\d+[.)、]\s+/, '') });
+                } else {
+                    blocks.push({ type: 'body', text: trimmed });
+                }
+            }
+
+            return blocks;
+        }
+
+        function wrapTextByWidth(drawCtx, text, maxWidth) {
+            const rows = [];
+            let current = '';
+
+            for (const char of text) {
+                const next = current + char;
+                if (!current || drawCtx.measureText(next).width <= maxWidth) {
+                    current = next;
+                } else {
+                    rows.push(current);
+                    current = char;
+                }
+            }
+
+            if (current) rows.push(current);
+            return rows.length ? rows : [''];
+        }
+
+        function getStructuredStyle(kind, baseFontSize, lineHeight) {
+            const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+            const bodySize = clamp(baseFontSize * 0.66, 12, 18);
+
+            if (kind === 'h0') {
+                const size = clamp(baseFontSize * 1.25, 28, 44);
+                return {
+                    fontSize: size,
+                    color: '#111827',
+                    rowAdvance: size * 1.2,
+                    before: 0,
+                    after: 12,
+                    blockGap: 8
+                };
+            }
+
+            if (kind === 'h1') {
+                const size = clamp(baseFontSize * 0.95, 18, 28);
+                return {
+                    fontSize: size,
+                    color: '#1d4ed8',
+                    rowAdvance: size * 1.26,
+                    before: 8,
+                    after: 6,
+                    blockGap: 8
+                };
+            }
+
+            if (kind === 'h2') {
+                const size = clamp(baseFontSize * 0.82, 15, 23);
+                return {
+                    fontSize: size,
+                    color: '#c2410c',
+                    rowAdvance: size * 1.28,
+                    before: 6,
+                    after: 5,
+                    blockGap: 7
+                };
+            }
+
+            return {
+                fontSize: bodySize,
+                color: '#1f2937',
+                rowAdvance: bodySize * Math.max(1.15, lineHeight * 0.92),
+                before: kind === 'bullet' ? 2 : 0,
+                after: 2,
+                blockGap: 4
+            };
+        }
+
+        function drawHandwrittenRow(drawCtx, rowText, startX, startY, maxRight, options) {
+            let cursorX = startX;
+            const positionJitter = options.positionJitter;
+            const fontSize = options.fontSize;
+            const weightVariation = options.weightVariation;
+
+            for (const char of rowText) {
+                const metrics = drawCtx.measureText(char);
+                const charWidth = metrics.width + 1.5;
+                const jitterX = (Math.random() - 0.5) * fontSize * positionJitter * 0.25;
+                const jitterY = (Math.random() - 0.5) * fontSize * positionJitter * 0.12;
+                const maxX = Math.max(startX, maxRight - charWidth);
+                const finalX = Math.min(maxX, Math.max(startX, cursorX + jitterX));
+                const finalY = startY + jitterY;
+
+                if (Math.random() < weightVariation * 0.75) {
+                    drawCtx.fillText(char, finalX + 0.4, finalY);
+                }
+
+                drawCtx.fillText(char, finalX, finalY);
+                cursorX += charWidth;
+            }
+        }
+
+        function estimateStructuredBlockHeight(drawCtx, block, width, baseFontSize, lineHeight) {
+            if (block.type === 'spacer') {
+                return Math.max(8, baseFontSize * 0.36);
+            }
+
+            const style = getStructuredStyle(block.type, baseFontSize, lineHeight);
+            drawCtx.font = `${style.fontSize}px "${fontSelect.value}", cursive`;
+            const content = block.type === 'bullet' ? `• ${block.text}` : block.text;
+            const rows = wrapTextByWidth(drawCtx, content, width);
+            return style.before + rows.length * style.rowAdvance + style.after + style.blockGap;
+        }
+
+        function drawStructuredBlock(drawCtx, block, x, y, width, options) {
+            if (block.type === 'spacer') {
+                return Math.max(8, options.fontSize * 0.36);
+            }
+
+            const style = getStructuredStyle(block.type, options.fontSize, options.lineHeight);
+            const content = block.type === 'bullet' ? `• ${block.text}` : block.text;
+
+            drawCtx.font = `${style.fontSize}px "${options.fontFamily}", cursive`;
+            drawCtx.fillStyle = style.color;
+            drawCtx.textBaseline = 'top';
+
+            const rows = wrapTextByWidth(drawCtx, content, width);
+            const rowAreaTop = y + style.before;
+
+            if (block.type === 'h1') {
+                drawCtx.fillStyle = 'rgba(59, 130, 246, 0.11)';
+                drawCtx.fillRect(x - 6, rowAreaTop - 3, width + 10, rows.length * style.rowAdvance + 6);
+                drawCtx.fillStyle = style.color;
+            }
+
+            if (block.type === 'h2') {
+                drawCtx.fillStyle = 'rgba(251, 146, 60, 0.11)';
+                drawCtx.fillRect(x - 4, rowAreaTop - 2, width + 8, rows.length * style.rowAdvance + 4);
+                drawCtx.fillStyle = style.color;
+            }
+
+            let cursorY = rowAreaTop;
+            let longestRowWidth = 0;
+            for (const row of rows) {
+                drawHandwrittenRow(drawCtx, row, x, cursorY, x + width, {
+                    positionJitter: Math.max(0.02, options.positionJitter * 0.55),
+                    fontSize: style.fontSize,
+                    weightVariation: options.weightVariation
+                });
+                longestRowWidth = Math.max(longestRowWidth, drawCtx.measureText(row).width);
+                cursorY += style.rowAdvance;
+            }
+
+            if (block.type === 'h0') {
+                drawCtx.fillStyle = 'rgba(245, 158, 11, 0.48)';
+                drawCtx.fillRect(
+                    x - 6,
+                    cursorY + 2,
+                    Math.min(width + 10, longestRowWidth + 14),
+                    Math.max(6, style.fontSize * 0.18)
+                );
+            }
+
+            return style.before + rows.length * style.rowAdvance + style.after + style.blockGap;
+        }
+
+        function renderUniformFlowMode(drawCtx, options) {
+            const { text, layout, fontSize, positionJitter, weightVariation, scratchRate } = options;
+            const lines = text.split('\n');
+            let y = layout.top;
+            let reachedBottom = false;
+
+            for (const line of lines) {
+                let x = layout.left;
+
+                for (const char of line) {
+                    const metrics = drawCtx.measureText(char);
+                    const charWidth = metrics.width + 2;
+
+                    if (x + charWidth > layout.right && x > layout.left) {
+                        x = layout.left;
+                        y += layout.rowAdvance;
+                    }
+
+                    if (y + fontSize > layout.bottom) {
+                        reachedBottom = true;
+                        break;
+                    }
+
+                    const maxOffsetX = fontSize * positionJitter * 0.8;
+                    const maxOffsetY = layout.lineSnapped
+                        ? Math.min(layout.rowAdvance * 0.18, fontSize * positionJitter * 0.22)
+                        : fontSize * positionJitter * 0.4;
+                    const offsetX = (Math.random() - 0.5) * maxOffsetX;
+                    const offsetY = (Math.random() - 0.5) * maxOffsetY;
+                    const maxX = Math.max(layout.left, layout.right - charWidth);
+                    const finalX = Math.min(maxX, Math.max(layout.left, x + offsetX));
+                    const finalY = y + offsetY;
+
+                    if (Math.random() < weightVariation) {
+                        const extraWeight = Math.floor(Math.random() * 3);
+                        for (let i = 0; i < extraWeight; i++) {
+                            drawCtx.fillText(char, finalX + i * 0.5, finalY);
+                        }
+                    }
+
+                    drawCtx.fillText(char, finalX, finalY);
+
+                    if (Math.random() < scratchRate) {
+                        drawScratchLine(finalX, finalY, fontSize);
+                    }
+
+                    x += charWidth;
+                }
+
+                if (reachedBottom) break;
+                y += layout.rowAdvance;
+                if (y > layout.bottom) break;
+            }
+        }
+
+        function renderStructuredFillMode(drawCtx, options) {
+            const { text, layout, fontSize, lineHeight, positionJitter, weightVariation, fontFamily } = options;
+            const blocks = parseStructuredBlocks(text);
+            if (!blocks.length) return;
+
+            let titleBlock = blocks.find((block) => block.type === 'h0');
+            if (!titleBlock) {
+                const fallbackTitle = (blocks.find((block) => block.type !== 'spacer')?.text || '结构化笔记').slice(0, 24);
+                titleBlock = { type: 'h0', text: fallbackTitle };
+            }
+
+            const bodyBlocks = [];
+            let titleConsumed = false;
+            for (const block of blocks) {
+                if (block.type === 'h0' && !titleConsumed) {
+                    titleConsumed = true;
+                    continue;
+                }
+                bodyBlocks.push(block);
+            }
+
+            const fullWidth = layout.right - layout.left;
+            const titleUsedHeight = drawStructuredBlock(drawCtx, titleBlock, layout.left, layout.top, fullWidth, {
+                fontSize,
+                lineHeight,
+                positionJitter,
+                weightVariation,
+                fontFamily
+            });
+
+            const columnGap = Math.max(20, fullWidth * 0.04);
+            const columnWidth = Math.max(150, (fullWidth - columnGap) / 2);
+            const leftX = layout.left;
+            const rightX = layout.left + columnWidth + columnGap;
+            const bottom = layout.bottom;
+            let leftY = layout.top + titleUsedHeight + Math.max(4, fontSize * 0.22);
+            let rightY = leftY;
+
+            for (const block of bodyBlocks) {
+                const estimatedHeight = estimateStructuredBlockHeight(drawCtx, block, columnWidth, fontSize, lineHeight);
+                let useRightColumn = rightY < leftY;
+
+                if (!useRightColumn && leftY + estimatedHeight > bottom && rightY + estimatedHeight <= bottom) {
+                    useRightColumn = true;
+                } else if (useRightColumn && rightY + estimatedHeight > bottom && leftY + estimatedHeight <= bottom) {
+                    useRightColumn = false;
+                }
+
+                if (leftY + estimatedHeight > bottom && rightY + estimatedHeight > bottom) {
+                    break;
+                }
+
+                if (useRightColumn) {
+                    const used = drawStructuredBlock(drawCtx, block, rightX, rightY, columnWidth, {
+                        fontSize,
+                        lineHeight,
+                        positionJitter,
+                        weightVariation,
+                        fontFamily
+                    });
+                    rightY += used;
+                } else {
+                    const used = drawStructuredBlock(drawCtx, block, leftX, leftY, columnWidth, {
+                        fontSize,
+                        lineHeight,
+                        positionJitter,
+                        weightVariation,
+                        fontFamily
+                    });
+                    leftY += used;
+                }
+            }
+        }
+
+        function parseMindmapDataFromBlocks(blocks) {
+            const usefulBlocks = blocks.filter((block) => block.type !== 'spacer' && block.text.trim());
+            if (!usefulBlocks.length) {
+                return {
+                    root: '思维导图',
+                    branches: [{ title: '核心主题', notes: ['请输入正文并使用 ## 分支标题 来组织结构'] }]
+                };
+            }
+
+            let rootIndex = usefulBlocks.findIndex((block) => block.type === 'h0');
+            if (rootIndex < 0) rootIndex = 0;
+
+            const root = usefulBlocks[rootIndex].text.slice(0, 24) || '思维导图';
+            const branches = [];
+            let currentBranch = null;
+
+            usefulBlocks.forEach((block, index) => {
+                if (index === rootIndex && block.type === 'h0') return;
+
+                if (block.type === 'h1') {
+                    if (currentBranch) branches.push(currentBranch);
+                    currentBranch = { title: block.text.slice(0, 24), notes: [] };
+                    return;
+                }
+
+                const noteText = block.type === 'bullet' ? `• ${block.text}` : block.text;
+
+                if (!currentBranch) {
+                    currentBranch = { title: noteText.slice(0, 24), notes: [] };
+                    return;
+                }
+
+                if (block.type === 'h2') {
+                    currentBranch.notes.push(`↳ ${block.text}`);
+                } else {
+                    currentBranch.notes.push(noteText);
+                }
+            });
+
+            if (currentBranch) branches.push(currentBranch);
+
+            const normalizedBranches = branches
+                .map((branch) => ({
+                    title: (branch.title || '分支').slice(0, 28),
+                    notes: (branch.notes || []).map((note) => note.slice(0, 38)).filter(Boolean)
+                }))
+                .filter((branch) => branch.title);
+
+            if (!normalizedBranches.length) {
+                usefulBlocks
+                    .filter((_, index) => index !== rootIndex)
+                    .slice(0, 6)
+                    .forEach((block) => {
+                        normalizedBranches.push({
+                            title: block.text.slice(0, 22),
+                            notes: []
+                        });
+                    });
+            }
+
+            return {
+                root,
+                branches: normalizedBranches.slice(0, 8)
+            };
+        }
+
+        function drawRoundedRectPath(drawCtx, x, y, width, height, radius) {
+            const r = Math.min(radius, width / 2, height / 2);
+            drawCtx.beginPath();
+            drawCtx.moveTo(x + r, y);
+            drawCtx.lineTo(x + width - r, y);
+            drawCtx.quadraticCurveTo(x + width, y, x + width, y + r);
+            drawCtx.lineTo(x + width, y + height - r);
+            drawCtx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+            drawCtx.lineTo(x + r, y + height);
+            drawCtx.quadraticCurveTo(x, y + height, x, y + height - r);
+            drawCtx.lineTo(x, y + r);
+            drawCtx.quadraticCurveTo(x, y, x + r, y);
+            drawCtx.closePath();
+        }
+
+        function drawMindmapNode(drawCtx, nodeText, centerX, centerY, options) {
+            const {
+                maxWidth,
+                fontSize,
+                lineHeight,
+                fontFamily,
+                palette,
+                positionJitter,
+                weightVariation
+            } = options;
+
+            const textPaddingX = Math.max(10, fontSize * 0.52);
+            const textPaddingY = Math.max(8, fontSize * 0.38);
+            const minWidth = Math.max(92, fontSize * 3.1);
+            drawCtx.font = `${fontSize}px "${fontFamily}", cursive`;
+            const rows = wrapTextByWidth(drawCtx, nodeText, Math.max(36, maxWidth - textPaddingX * 2)).slice(0, 3);
+            const rowAdvance = fontSize * Math.max(1.15, lineHeight * 0.9);
+            const contentWidth = rows.reduce((max, row) => Math.max(max, drawCtx.measureText(row).width), 0);
+            const width = Math.max(minWidth, Math.min(maxWidth, contentWidth + textPaddingX * 2));
+            const height = textPaddingY * 2 + rows.length * rowAdvance;
+            const x = centerX - width / 2;
+            const y = centerY - height / 2;
+
+            drawCtx.save();
+            drawRoundedRectPath(drawCtx, x, y, width, height, Math.max(8, fontSize * 0.34));
+            drawCtx.fillStyle = palette.fill;
+            drawCtx.fill();
+            drawCtx.strokeStyle = palette.stroke;
+            drawCtx.lineWidth = 1.4;
+            drawCtx.stroke();
+
+            drawCtx.fillStyle = palette.text;
+            drawCtx.textBaseline = 'top';
+            let textY = y + textPaddingY;
+            for (const row of rows) {
+                drawHandwrittenRow(drawCtx, row, x + textPaddingX, textY, x + width - textPaddingX, {
+                    positionJitter: Math.max(0.02, positionJitter * 0.4),
+                    fontSize,
+                    weightVariation: weightVariation * 0.65
+                });
+                textY += rowAdvance;
+            }
+            drawCtx.restore();
+
+            return { x, y, w: width, h: height, cx: centerX, cy: centerY };
+        }
+
+        function drawMindmapConnector(drawCtx, fromNode, toNode, color, positionJitter) {
+            const goingRight = toNode.cx >= fromNode.cx;
+            const startX = goingRight ? fromNode.x + fromNode.w : fromNode.x;
+            const startY = fromNode.cy;
+            const endX = goingRight ? toNode.x : toNode.x + toNode.w;
+            const endY = toNode.cy;
+            const midOffset = (endX - startX) * 0.45;
+            const jitter = Math.max(1.5, 4.5 * positionJitter);
+
+            drawCtx.save();
+            drawCtx.strokeStyle = color;
+            drawCtx.lineWidth = 1.5;
+            drawCtx.globalAlpha = 0.72;
+
+            for (let i = 0; i < 2; i++) {
+                const driftX = (Math.random() - 0.5) * jitter;
+                const driftY = (Math.random() - 0.5) * jitter;
+                drawCtx.beginPath();
+                drawCtx.moveTo(startX, startY);
+                drawCtx.bezierCurveTo(
+                    startX + midOffset * 0.55 + driftX,
+                    startY + driftY,
+                    endX - midOffset * 0.55 + driftX,
+                    endY + driftY,
+                    endX,
+                    endY
+                );
+                drawCtx.stroke();
+            }
+
+            drawCtx.restore();
+        }
+
+        function drawMindmapNote(drawCtx, noteText, nodeBox, side, options) {
+            if (!noteText) return;
+
+            const { layout, fontFamily, fontSize, lineHeight, positionJitter } = options;
+            const noteFontSize = Math.max(10, Math.min(14, fontSize * 0.58));
+            const maxWidth = Math.min(210, (layout.right - layout.left) * 0.32);
+            const innerPaddingX = 8;
+            const innerPaddingY = 6;
+
+            drawCtx.font = `${noteFontSize}px "${fontFamily}", cursive`;
+            const rows = wrapTextByWidth(drawCtx, noteText, Math.max(36, maxWidth - innerPaddingX * 2)).slice(0, 2);
+            const rowAdvance = noteFontSize * Math.max(1.1, lineHeight * 0.84);
+            const contentWidth = rows.reduce((max, row) => Math.max(max, drawCtx.measureText(row).width), 0);
+            const width = Math.max(74, Math.min(maxWidth, contentWidth + innerPaddingX * 2));
+            const height = rows.length * rowAdvance + innerPaddingY * 2;
+            const offsetX = 14;
+            const desiredX = side === 'left'
+                ? nodeBox.x - width - offsetX
+                : nodeBox.x + nodeBox.w + offsetX;
+            const x = Math.min(layout.right - width, Math.max(layout.left, desiredX));
+            const y = Math.min(
+                layout.bottom - height,
+                Math.max(layout.top, nodeBox.cy - height / 2)
+            );
+            const fromX = side === 'left' ? nodeBox.x : nodeBox.x + nodeBox.w;
+            const toX = side === 'left' ? x + width : x;
+
+            drawCtx.save();
+            drawCtx.setLineDash([4, 3]);
+            drawCtx.strokeStyle = 'rgba(71, 85, 105, 0.72)';
+            drawCtx.lineWidth = 1;
+            drawCtx.beginPath();
+            drawCtx.moveTo(fromX, nodeBox.cy);
+            drawCtx.lineTo(toX, y + height / 2);
+            drawCtx.stroke();
+            drawCtx.setLineDash([]);
+
+            drawRoundedRectPath(drawCtx, x, y, width, height, 8);
+            drawCtx.fillStyle = 'rgba(255,255,255,0.88)';
+            drawCtx.fill();
+            drawCtx.strokeStyle = 'rgba(100,116,139,0.48)';
+            drawCtx.lineWidth = 1;
+            drawCtx.stroke();
+
+            drawCtx.fillStyle = '#334155';
+            drawCtx.textBaseline = 'top';
+            let cursorY = y + innerPaddingY;
+            for (const row of rows) {
+                drawHandwrittenRow(drawCtx, row, x + innerPaddingX, cursorY, x + width - innerPaddingX, {
+                    positionJitter: Math.max(0.01, positionJitter * 0.32),
+                    fontSize: noteFontSize,
+                    weightVariation: 0.02
+                });
+                cursorY += rowAdvance;
+            }
+            drawCtx.restore();
+        }
+
+        function renderMindmapAnnotatedMode(drawCtx, options) {
+            const { text, layout, fontSize, lineHeight, positionJitter, weightVariation, fontFamily } = options;
+            const structuredBlocks = parseStructuredBlocks(text);
+            const data = parseMindmapDataFromBlocks(structuredBlocks);
+            const branches = data.branches || [];
+
+            const fullWidth = layout.right - layout.left;
+            const fullHeight = layout.bottom - layout.top;
+            const centerX = layout.left + fullWidth / 2;
+            const rootY = layout.top + Math.max(24, fullHeight * 0.08);
+
+            const rootNode = drawMindmapNode(drawCtx, data.root || '思维导图', centerX, rootY, {
+                maxWidth: Math.min(300, fullWidth * 0.44),
+                fontSize: Math.max(16, fontSize * 0.92),
+                lineHeight,
+                fontFamily,
+                palette: {
+                    fill: 'rgba(253, 230, 138, 0.62)',
+                    stroke: 'rgba(161, 98, 7, 0.85)',
+                    text: '#111827'
+                },
+                positionJitter,
+                weightVariation
+            });
+
+            if (!branches.length) return;
+
+            const leftBranches = [];
+            const rightBranches = [];
+            branches.forEach((branch, index) => {
+                if (index % 2 === 0) {
+                    rightBranches.push(branch);
+                } else {
+                    leftBranches.push(branch);
+                }
+            });
+
+            const branchTop = rootNode.y + rootNode.h + Math.max(12, fontSize * 0.3);
+            const branchBottom = layout.bottom - Math.max(14, fontSize * 0.35);
+            const branchWidth = Math.min(250, fullWidth * 0.3);
+            const paletteList = [
+                { fill: 'rgba(219, 234, 254, 0.56)', stroke: 'rgba(37, 99, 235, 0.82)', text: '#1e3a8a' },
+                { fill: 'rgba(209, 250, 229, 0.58)', stroke: 'rgba(5, 150, 105, 0.82)', text: '#064e3b' },
+                { fill: 'rgba(254, 226, 226, 0.56)', stroke: 'rgba(220, 38, 38, 0.82)', text: '#7f1d1d' },
+                { fill: 'rgba(243, 232, 255, 0.58)', stroke: 'rgba(147, 51, 234, 0.82)', text: '#4c1d95' }
+            ];
+
+            function drawBranchSide(branchList, side) {
+                if (!branchList.length) return;
+                const step = (branchBottom - branchTop) / (branchList.length + 1);
+                const centerBaseX = side === 'left'
+                    ? layout.left + fullWidth * 0.23
+                    : layout.right - fullWidth * 0.23;
+
+                branchList.forEach((branch, index) => {
+                    const centerY = branchTop + step * (index + 1);
+                    const driftX = (Math.random() - 0.5) * fontSize * positionJitter;
+                    const node = drawMindmapNode(drawCtx, branch.title, centerBaseX + driftX, centerY, {
+                        maxWidth: branchWidth,
+                        fontSize: Math.max(13, fontSize * 0.66),
+                        lineHeight,
+                        fontFamily,
+                        palette: paletteList[index % paletteList.length],
+                        positionJitter,
+                        weightVariation
+                    });
+
+                    drawMindmapConnector(
+                        drawCtx,
+                        rootNode,
+                        node,
+                        paletteList[index % paletteList.length].stroke,
+                        positionJitter
+                    );
+
+                    const note = branch.notes[0] || branch.notes[1] || '';
+                    if (note) {
+                        drawMindmapNote(drawCtx, note, node, side, {
+                            layout,
+                            fontFamily,
+                            fontSize,
+                            lineHeight,
+                            positionJitter
+                        });
+                    }
+                });
+            }
+
+            drawBranchSide(rightBranches, 'right');
+            drawBranchSide(leftBranches, 'left');
         }
 
         // 主渲染函数
@@ -1249,7 +1907,7 @@
 
             // 获取纸张实际尺寸和预览缩放
             const paper = paperSizes[paperType];
-            const scale = getPreviewScale(paper);
+            const scale = PREVIEW_DPI / PAPER_BASE_DPI;
             const displayWidth = Math.round(paper.w * scale);
             const displayHeight = Math.round(paper.h * scale);
 
@@ -1288,79 +1946,35 @@
                 lineHeight
             });
 
-            // 渲染文字
-            const lines = text.split('\n');
-            let y = layout.top;
-            let reachedBottom = false;
-
-            for (const line of lines) {
-                let x = layout.left;
-
-                for (const char of line) {
-                    // 计算字符宽度
-                    const metrics = ctx.measureText(char);
-                    const charWidth = metrics.width + 2;
-
-                    // 智能换行：在写字之前检查是否会超出边界
-                    if (x + charWidth > layout.right && x > layout.left) {
-                        x = layout.left;
-                        y += layout.rowAdvance;
-                    }
-
-                    // 检查是否超出纸张底部
-                    if (y + fontSize > layout.bottom) {
-                        reachedBottom = true;
-                        break; // 停止渲染，避免超出纸张
-                    }
-
-                    // 计算随机偏移（限制范围，避免超出边界）
-                    const maxOffsetX = fontSize * positionJitter * 0.8; // 限制在 80%
-                    const maxOffsetY = layout.lineSnapped
-                        ? Math.min(layout.rowAdvance * 0.18, fontSize * positionJitter * 0.22)
-                        : fontSize * positionJitter * 0.4;
-                    const offsetX = (Math.random() - 0.5) * maxOffsetX;
-                    const offsetY = (Math.random() - 0.5) * maxOffsetY;
-
-                    // 确保字符不会超出左右边界
-                    const maxX = Math.max(layout.left, layout.right - charWidth);
-                    const finalX = Math.min(maxX, Math.max(layout.left, x + offsetX));
-                    const finalY = y + offsetY;
-
-                    // 字体粗细变化（通过多次绘制模拟）
-                    const shouldVaryWeight = Math.random() < weightVariation;
-                    if (shouldVaryWeight) {
-                        // 随机增加粗细（绘制多次，稍微偏移）
-                        const extraWeight = Math.floor(Math.random() * 3);
-                        for (let i = 0; i < extraWeight; i++) {
-                            const microOffset = i * 0.5;
-                            ctx.fillText(char, finalX + microOffset, finalY);
-                        }
-                    }
-
-                    // 绘制字符
-                    ctx.fillText(char, finalX, finalY);
-
-                    // 随机涂改效果（删除线）
-                    const shouldScratch = Math.random() < scratchRate;
-                    if (shouldScratch) {
-                        drawScratchLine(finalX, finalY, fontSize);
-                    }
-
-                    // 移动到下一个字符位置
-                    x += charWidth;
-                }
-
-                if (reachedBottom) {
-                    break;
-                }
-
-                // 换行
-                y += layout.rowAdvance;
-
-                // 检查是否超出纸张底部
-                if (y > layout.bottom) {
-                    break;
-                }
+            if (layoutModeSelect.value === 'structured-fill') {
+                renderStructuredFillMode(ctx, {
+                    text,
+                    layout,
+                    fontFamily,
+                    fontSize,
+                    lineHeight,
+                    positionJitter,
+                    weightVariation
+                });
+            } else if (layoutModeSelect.value === 'mindmap-annotated') {
+                renderMindmapAnnotatedMode(ctx, {
+                    text,
+                    layout,
+                    fontFamily,
+                    fontSize,
+                    lineHeight,
+                    positionJitter,
+                    weightVariation
+                });
+            } else {
+                renderUniformFlowMode(ctx, {
+                    text,
+                    layout,
+                    fontSize,
+                    positionJitter,
+                    weightVariation,
+                    scratchRate
+                });
             }
         }
 
