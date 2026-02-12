@@ -1,275 +1,1503 @@
 <!DOCTYPE html>
-<html lang="zh-CN"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Handwriting Generator Redesign V3 Premium</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Ma+Shan+Zheng&amp;family=Caveat:wght@400;700&amp;family=Kalam:wght@300;400;700&amp;display=swap" rel="stylesheet"/>
-<script>
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              navy: {
-                800: "#1B2A41",
-                900: "#0F172A",
-              },
-              cream: {
-                50: "#FFFAF0",
-                100: "#FDFBF7",
-                200: "#F3EFE0",
-              },
-              accent: "#C6A87C", // Muted Gold/Bronze
-            },
-            fontFamily: {
-              sans: ["Inter", "sans-serif"],
-              handwriting: ["Ma Shan Zheng", "cursive"],
-              caveat: ["Caveat", "cursive"],
-              kalam: ["Kalam", "cursive"],
-            },
-            boxShadow: {
-              'card': '0 20px 40px -10px rgba(0, 0, 0, 0.1), 0 10px 20px -10px rgba(0,0,0,0.05)',
-              'paper': '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(0,0,0,0.05)',
-              'inner-tight': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
-            }
-          },
-        },
-      };
-    </script>
-<style>
-        body {
-            background-color: #E8E6DF;background-image: radial-gradient(#D6D3C9 1px, transparent 1px);
-            background-size: 20px 20px;
-        }.glass-panel {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-        }.aged-paper {
-            background-color: #fdfbf7;
-            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
-            box-shadow: 
-                0 1px 2px rgba(0,0,0,0.05), 
-                0 10px 30px rgba(0,0,0,0.1),
-                inset 0 0 40px rgba(198, 168, 124, 0.1); 
-            position: relative;
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手写体生成器 - Handwriting Generator</title>
+
+    <!-- 本地手写字体 -->
+    <style>
+        @font-face {
+            font-family: '清松手写体1-圆润';
+            src: url('../assets/fonts/清松手寫體1：圓潤.ttf') format('truetype');
+            font-display: swap;
         }
-        .aged-paper::before {
+
+        @font-face {
+            font-family: '清松手写体2-秀气';
+            src: url('../assets/fonts/清松手寫體2：秀氣.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: '清松手写体3-呆萌';
+            src: url('../assets/fonts/清松手寫體3：呆萌.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: '清松手写体4-POP';
+            src: url('../assets/fonts/清松手寫體4：POP.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: '清松手写体5-行楷';
+            src: url('../assets/fonts/清松手寫體5：行楷.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: '清松手写体6-Q萌';
+            src: url('../assets/fonts/清松手寫體6：Q萌.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: '清松手写体7-飘逸';
+            src: url('../assets/fonts/清松手寫體7：飄逸.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: '清松手写体8-随性';
+            src: url('../assets/fonts/清松手寫體8：隨性.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: '沐瑶软笔手写体';
+            src: url('../assets/fonts/沐瑶软笔手写体.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: '沐瑶随心手写体';
+            src: url('../assets/fonts/沐瑶随心手写体.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: '内海字体';
+            src: url('../assets/fonts/內海字體-Regular-Lite.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: '她屿山海';
+            src: url('../assets/fonts/她屿山海.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: '栗壳坚坚体';
+            src: url('../assets/fonts/栗壳坚坚体.ttf') format('truetype');
+            font-display: swap;
+        }
+    </style>
+
+    <style>
+        :root {
+            --bg-main: #f3f7ff;
+            --bg-accent: #f8faff;
+            --surface: rgba(255, 255, 255, 0.88);
+            --surface-strong: rgba(255, 255, 255, 0.96);
+            --text-1: #111827;
+            --text-2: #475569;
+            --text-3: #64748b;
+            --border: rgba(148, 163, 184, 0.28);
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --purple: #7c3aed;
+            --green: #10b981;
+            --card-shadow: 0 12px 40px rgba(37, 99, 235, 0.12);
+            --focus: 0 0 0 3px rgba(37, 99, 235, 0.18);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background:
+                radial-gradient(1200px 450px at 10% -20%, #dbeafe 0%, transparent 70%),
+                radial-gradient(900px 400px at 90% -10%, #ede9fe 0%, transparent 68%),
+                linear-gradient(180deg, var(--bg-main), var(--bg-accent));
+            min-height: 100vh;
+            overflow: hidden;
+            color: var(--text-1);
+        }
+
+        .container {
+            display: flex;
+            gap: 16px;
+            height: 100vh;
+            padding: 16px;
+        }
+
+        .left-panel {
+            width: 390px;
+            min-width: 320px;
+            max-width: 430px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(8px);
+        }
+
+        .left-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .left-panel::-webkit-scrollbar-thumb {
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.45);
+        }
+
+        .panel-header {
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 18px;
+            background: linear-gradient(120deg, rgba(37, 99, 235, 0.11), rgba(124, 58, 237, 0.09));
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .left-panel h1 {
+            font-size: 24px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+            color: #0f172a;
+            letter-spacing: 0.2px;
+        }
+
+        .left-panel p {
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-2);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin: 10px 0 14px;
+            color: #334155;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .section-title::before {
             content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(to bottom right, rgba(255,255,255,0.2), rgba(0,0,0,0.02));
-            pointer-events: none;
-        }input[type="range"] {
-            -webkit-appearance: none;
+            width: 14px;
+            height: 2px;
+            border-radius: 999px;
+            margin-right: 8px;
+            background: linear-gradient(90deg, var(--primary), #8b5cf6);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 8px;
+        }
+
+        .form-group textarea,
+        .form-group select,
+        .form-group input[type="text"],
+        .form-group input[type="password"] {
+            width: 100%;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            border-radius: 12px;
+            padding: 11px 12px;
+            font-size: 14px;
+            color: #0f172a;
+            background: rgba(255, 255, 255, 0.95);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+            line-height: 1.55;
+        }
+
+        .form-group textarea:focus,
+        .form-group select:focus,
+        .form-group input[type="text"]:focus,
+        .form-group input[type="password"]:focus {
+            outline: none;
+            background: #fff;
+            border-color: rgba(37, 99, 235, 0.5);
+            box-shadow: var(--focus);
+        }
+
+        .input-hint {
+            margin-top: 6px;
+            font-size: 11px;
+            color: var(--text-3);
+            line-height: 1.45;
+        }
+
+        .slider-group {
+            margin-bottom: 14px;
+            border: 1px solid rgba(203, 213, 225, 0.65);
+            border-radius: 14px;
+            padding: 12px 12px 11px;
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .slider-label span {
+            font-size: 13px;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .slider-value {
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .range-hint {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        input[type="range"] {
             width: 100%;
             height: 6px;
-            background: #E2E8F0;
             border-radius: 999px;
+            background: linear-gradient(90deg, #bfdbfe 0%, #dbeafe 100%);
             outline: none;
+            -webkit-appearance: none;
         }
+
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             width: 18px;
             height: 18px;
-            background: #1B2A41;
-            cursor: pointer;
             border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #60a5fa);
             border: 2px solid #fff;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            transition: transform 0.1s;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+            cursor: pointer;
         }
-        input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
-        }.custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #60a5fa);
+            border: 2px solid #fff;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+            cursor: pointer;
         }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
+
+        .btn {
+            width: 100%;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            color: #fff;
+            transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
         }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background-color: rgba(27, 42, 65, 0.1);
-            border-radius: 20px;
+
+        .btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.02);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.26);
+            margin-bottom: 10px;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--green), #059669);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25);
+        }
+
+        .btn-ai {
+            margin-top: 10px;
+            background: linear-gradient(135deg, var(--purple), #6d28d9);
+            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.24);
+        }
+
+        .btn-ai:disabled {
+            background: #9ca3af;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .ai-config-section {
+            margin-bottom: 18px;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            border-radius: 14px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .ai-config-header {
+            background: linear-gradient(90deg, rgba(248, 250, 252, 0.9), rgba(239, 246, 255, 0.95));
+            padding: 13px 14px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .ai-config-header:hover {
+            background: linear-gradient(90deg, rgba(239, 246, 255, 0.92), rgba(224, 242, 254, 0.96));
+        }
+
+        .ai-config-header h3 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .ai-config-toggle {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .ai-config-body {
+            padding: 14px;
+            display: none;
+            border-top: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .ai-config-body.active {
+            display: block;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+            padding: 9px;
+            font-size: 12px;
+        }
+
+        .status-message {
+            margin-top: 10px;
+            padding: 9px 11px;
+            border-radius: 10px;
+            font-size: 12px;
+            border: 1px solid transparent;
+            display: none;
+        }
+
+        .status-message.success {
+            background: #ecfdf5;
+            color: #065f46;
+            border-color: #6ee7b7;
+            display: block;
+        }
+
+        .status-message.error {
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: #fca5a5;
+            display: block;
+        }
+
+        .action-buttons {
+            margin-top: 8px;
+        }
+
+        .global-actions {
+            position: fixed;
+            top: 14px;
+            right: 16px;
+            display: flex;
+            gap: 8px;
+            z-index: 999;
+        }
+
+        .global-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease;
+        }
+
+        .global-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .global-btn.print {
+            background: rgba(255, 255, 255, 0.9);
+            color: #1f2937;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+        }
+
+        .global-btn.export {
+            background: linear-gradient(120deg, #0f172a, #1e293b);
+            color: #fff;
+            border-color: rgba(15, 23, 42, 0.55);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.28);
+        }
+
+        .right-preview {
+            flex: 1;
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+        }
+
+        .preview-shell {
+            width: 100%;
+            background: var(--surface-strong);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .preview-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+            background: linear-gradient(90deg, rgba(248, 250, 252, 0.95), rgba(239, 246, 255, 0.95));
+            border-bottom: 1px solid rgba(148, 163, 184, 0.26);
+        }
+
+        .preview-eyebrow {
+            margin: 0;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #64748b;
+        }
+
+        .preview-title {
+            margin: 2px 0 0;
+            font-size: 18px;
+            color: #0f172a;
+        }
+
+        .preview-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .meta-chip {
+            font-size: 12px;
+            line-height: 1;
+            padding: 8px 10px;
+            border-radius: 999px;
+            color: #1e3a8a;
+            background: rgba(37, 99, 235, 0.08);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+        }
+
+        #canvas-container {
+            margin: 18px;
+            background: #fff;
+            border-radius: 18px;
+            border: 1px solid rgba(148, 163, 184, 0.24);
+            box-shadow: 0 6px 22px rgba(15, 23, 42, 0.08);
+            overflow: auto;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 1180px) {
+            body {
+                overflow: auto;
+            }
+
+            .container {
+                height: auto;
+                min-height: 100vh;
+                flex-direction: column;
+                padding: 12px;
+            }
+
+            .left-panel {
+                width: 100%;
+                min-width: 0;
+                max-width: none;
+            }
+
+            .preview-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .preview-meta {
+                justify-content: flex-start;
+            }
+
+            .global-actions {
+                position: static;
+                padding: 10px 12px 0;
+                justify-content: flex-end;
+            }
         }
     </style>
 </head>
-<body class="text-navy-800 h-screen flex flex-col overflow-hidden selection:bg-accent selection:text-white">
-<header class="h-16 flex items-center justify-between px-8 bg-transparent z-50">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 bg-navy-800 rounded-xl flex items-center justify-center text-white shadow-xl">
-<span class="material-symbols-outlined text-xl">ink_pen</span>
-</div>
-<div>
-<h1 class="text-xl font-bold tracking-tight text-navy-800">老王手写体 <span class="font-normal text-navy-800/60 ml-1">Pro</span></h1>
-</div>
-</div>
-<div class="flex items-center gap-2">
-<button class="flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-white text-navy-800 border border-gray-200 shadow-sm hover:shadow hover:bg-gray-50 text-sm font-semibold transition-all">
-<span class="material-symbols-outlined text-lg">print</span>
-        Print
-    </button>
-<button class="flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-navy-800 text-white shadow-lg shadow-navy-800/20 hover:bg-navy-900 hover:shadow-xl text-sm font-semibold transition-all">
-<span class="material-symbols-outlined text-lg">download</span>
-        Export
-    </button>
-</div>
-</header>
-<main class="flex-1 flex overflow-hidden p-6 pt-2 gap-8">
-<aside class="w-[420px] glass-panel rounded-3xl shadow-card flex flex-col overflow-hidden shrink-0 border border-white/40 h-full">
-<div class="p-6 flex-1 overflow-y-auto custom-scrollbar space-y-8">
-<section class="space-y-3">
-<div class="flex items-center justify-between">
-<label class="text-xs font-bold uppercase tracking-widest text-navy-800/60 flex items-center gap-2">
-<span class="material-symbols-outlined text-sm">edit_note</span> Content
-                    </label>
-<span class="text-[10px] font-mono text-navy-800/50 bg-white/50 px-2 py-0.5 rounded-full">48 / 5000</span>
-</div>
-<div class="relative group">
-<textarea class="w-full h-40 p-4 rounded-2xl border border-gray-200 bg-white/50 focus:bg-white focus:ring-2 focus:ring-navy-800/20 focus:border-navy-800 transition-all resize-none text-sm leading-relaxed shadow-inner-tight placeholder:text-gray-400" placeholder="Start typing your masterpiece...">这是一段手写体测试文字。
+
+<body>
+    <div class="global-actions">
+        <button class="global-btn print" onclick="printHandwriting()">🖨️ 打印</button>
+        <button class="global-btn export" onclick="downloadImage()">💾 导出</button>
+    </div>
+    <div class="container">
+        <!-- 左侧参数面板 -->
+        <div class="left-panel">
+            <div class="panel-header">
+                <h1>✍️ 手写体生成器</h1>
+                <p>输入文本，实时生成手写效果，适合录屏、教学与内容创作。</p>
+            </div>
+
+            <div class="section-title">AI 辅助</div>
+            <div class="section-title">文本内容</div>
+            <div class="form-group">
+                <label for="text-input">📝 输入文本</label>
+                <textarea id="text-input" placeholder="在这里输入你想要转换的文字...">这是一段手写体测试文字。
 你可以输入任何内容，
 系统会自动生成手写效果。
+
 适合用于视频录制、
 笔记展示等场景。</textarea>
-<button class="absolute bottom-3 right-3 p-1.5 bg-white shadow-sm rounded-lg hover:text-accent transition-colors border border-gray-100 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-200" title="AI Enhance">
-<span class="material-symbols-outlined text-lg">auto_awesome</span>
-</button>
-</div>
-</section>
-<section class="space-y-3">
-<label class="text-xs font-bold uppercase tracking-widest text-navy-800/60 flex items-center gap-2">
-<span class="material-symbols-outlined text-sm">font_download</span> Typeface
-                    </label>
-<div class="grid grid-cols-2 gap-3">
-<div class="cursor-pointer border-2 border-navy-800 bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all">
-<div class="text-lg font-handwriting mb-1 truncate">清新手写体</div>
-<div class="text-[10px] text-gray-400 font-sans uppercase tracking-wide">Selected</div>
-</div>
-<div class="cursor-pointer border border-gray-200 bg-white/50 p-3 rounded-xl hover:border-navy-800/30 hover:bg-white transition-all opacity-70 hover:opacity-100">
-<div class="text-lg font-caveat mb-1 truncate">Caveat Brush</div>
-<div class="text-[10px] text-gray-400 font-sans uppercase tracking-wide">Latin</div>
-</div>
-<div class="cursor-pointer border border-gray-200 bg-white/50 p-3 rounded-xl hover:border-navy-800/30 hover:bg-white transition-all opacity-70 hover:opacity-100">
-<div class="text-lg font-kalam mb-1 truncate">Kalam Regular</div>
-<div class="text-[10px] text-gray-400 font-sans uppercase tracking-wide">Mixed</div>
-</div>
-</div>
-</section>
-<section class="space-y-6 pt-2">
-<label class="text-xs font-bold uppercase tracking-widest text-navy-800/60 flex items-center gap-2">
-<span class="material-symbols-outlined text-sm">tune</span> Adjustments
-                    </label>
-<div class="space-y-3">
-<div class="flex justify-between items-end">
-<span class="text-xs font-medium text-navy-800">Spacing</span>
-<span class="text-[10px] font-mono text-navy-800/60 bg-gray-100 px-1.5 py-0.5 rounded">1.8</span>
-</div>
-<div class="relative h-6 flex items-center">
-<input max="3" min="1" step="0.1" type="range" value="1.8"/>
-</div>
-</div>
-<div class="space-y-3">
-<div class="flex justify-between items-end">
-<span class="text-xs font-medium text-navy-800">Chaos</span>
-<span class="text-[10px] font-mono text-navy-800/60 bg-gray-100 px-1.5 py-0.5 rounded">61%</span>
-</div>
-<div class="relative h-6 flex items-center">
-<input max="100" min="0" type="range" value="61"/>
-</div>
-</div>
-<div class="space-y-3">
-<div class="flex justify-between items-end">
-<span class="text-xs font-medium text-navy-800">Ink Blot</span>
-<span class="text-[10px] font-mono text-navy-800/60 bg-gray-100 px-1.5 py-0.5 rounded">3%</span>
-</div>
-<div class="relative h-6 flex items-center">
-<input max="20" min="0" type="range" value="3"/>
-</div>
-</div>
-<div class="grid grid-cols-2 gap-4 pt-2">
-<div class="space-y-1.5">
-<label class="text-[10px] font-semibold text-gray-500 uppercase">Paper Size</label>
-<select class="w-full bg-white/50 border-gray-200 rounded-lg text-sm focus:ring-navy-800 focus:border-navy-800 py-2">
-<option>A4 Portrait</option>
-<option>A4 Landscape</option>
-</select>
-</div>
-<div class="space-y-1.5">
-<label class="text-[10px] font-semibold text-gray-500 uppercase">Background</label>
-<select class="w-full bg-white/50 border-gray-200 rounded-lg text-sm focus:ring-navy-800 focus:border-navy-800 py-2">
-<option>Lined Cream</option>
-<option>Grid White</option>
-<option>Plain Parchment</option>
-</select>
-</div>
-</div>
-</section>
-</div>
-<div class="p-6 bg-white/40 border-t border-white/50 backdrop-blur-md">
-<button class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-navy-800 text-white shadow-lg shadow-navy-800/20 hover:bg-navy-900 hover:shadow-xl text-sm font-semibold transition-all">
-<span class="material-symbols-outlined text-lg">history_edu</span>
-        Generate Preview
-    </button>
-</div>
-</aside>
-<section class="flex-1 relative flex flex-col items-center justify-center h-full">
-<div class="relative w-full h-full overflow-auto flex justify-center items-center p-8 custom-scrollbar">
-<div class="aged-paper w-[600px] min-h-[850px] shadow-paper rounded-[2px] p-16 relative transition-transform duration-500 transform hover:scale-[1.01]">
-<div class="absolute left-16 top-0 bottom-0 w-px bg-red-300/40"></div>
-<div class="absolute left-0 top-0 bottom-0 w-16 flex flex-col items-center py-12 gap-8 opacity-60">
-<div class="w-2.5 h-2.5 rounded-full bg-gray-300/80 shadow-inner"></div>
-<div class="w-2.5 h-2.5 rounded-full bg-gray-300/80 shadow-inner"></div>
-<div class="w-2.5 h-2.5 rounded-full bg-gray-300/80 shadow-inner"></div>
-</div>
-<div class="ml-8 font-handwriting text-2xl leading-[2.5rem] text-navy-800/90 tracking-wide relative z-10">
-<div class="absolute inset-0 -z-10 pointer-events-none" style="background-image: linear-gradient(transparent 95%, rgba(0,0,0,0.05) 96%); background-size: 100% 2.5rem; top: 0.4rem;"></div>
-<div class="relative inline-block mb-1" style="transform: rotate(-0.5deg) translateX(4px);">
-                            这是一段手写体测试文字。
-                        </div>
-<br/>
-<div class="relative inline-block mb-1" style="transform: rotate(0.8deg) translateX(-2px);">
-                            你可以输入任何内容，
-                        </div>
-<br/>
-<div class="relative inline-block mb-1" style="transform: rotate(-0.2deg) translateX(8px);">
-                            系统会自动生成手写效果。
-                        </div>
-<br/>
-<div class="h-10"></div>
-<div class="relative inline-block mb-1 group" style="transform: rotate(0.5deg) translateX(15px);">
-                            适合用于视频录制、
-<div class="absolute -top-2 -right-4 w-6 h-6 bg-navy-800/10 rounded-full blur-[2px] opacity-60"></div>
-</div>
-<br/>
-<div class="relative inline-block mb-1" style="transform: rotate(-0.7deg) translateX(6px);">
-                            笔记展示等场景。
-                        </div>
-</div>
-<div class="absolute bottom-12 right-12 text-xs font-mono text-gray-400/80 flex flex-col items-end gap-1">
-<p class="tracking-widest">NO. 001482</p>
-<p class="border-b border-gray-300/50 pb-0.5 w-24 text-right">Oct 24, 2024</p>
-</div>
-</div>
-</div>
-</section>
-</main>
-<script>
-        // Simple script to update slider values visually
-        const sliders = document.querySelectorAll('input[type="range"]');
-        sliders.forEach(slider => {
-            slider.addEventListener('input', (e) => {
-                const valueSpan = e.target.parentElement.previousElementSibling.querySelector('span:last-child');
-                if (valueSpan) {
-                    let suffix = "";
-                    if (e.target.max > 50) suffix = "%";
-                    else if (e.target.step === "0.1") suffix = "";
-                    else suffix = "px";
-                    if (e.target.parentElement.previousElementSibling.innerText.includes("Spacing")) suffix = "";
-                    valueSpan.innerText = e.target.value + suffix;
+                <button class="btn btn-ai ai-polish-btn" onclick="aiPolish()" id="ai-polish-btn">
+                    🤖 AI 润色文案
+                </button>
+            </div>
+
+            <div class="section-title">视觉参数</div>
+            <div class="form-group">
+                <label for="font-select">🎨 选择字体</label>
+                <select id="font-select">
+                    <option value="清松手写体1-圆润">清松手写体1-圆润</option>
+                    <option value="清松手写体2-秀气">清松手写体2-秀气</option>
+                    <option value="清松手写体3-呆萌">清松手写体3-呆萌</option>
+                    <option value="清松手写体4-POP">清松手写体4-POP</option>
+                    <option value="清松手写体5-行楷" selected>清松手写体5-行楷</option>
+                    <option value="清松手写体6-Q萌">清松手写体6-Q萌</option>
+                    <option value="清松手写体7-飘逸">清松手写体7-飘逸</option>
+                    <option value="清松手写体8-随性">清松手写体8-随性</option>
+                    <option value="沐瑶软笔手写体">沐瑶软笔手写体</option>
+                    <option value="沐瑶随心手写体">沐瑶随心手写体</option>
+                    <option value="内海字体">内海字体</option>
+                    <option value="她屿山海">她屿山海</option>
+                    <option value="栗壳坚坚体">栗壳坚坚体</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="paper-select">📄 纸张尺寸</label>
+                <select id="paper-select">
+                    <option value="a4-portrait" selected>A4纸-纵向 (4960x7015)</option>
+                    <option value="a4-landscape">A4纸-横向 (7015x4960)</option>
+                    <option value="b5-portrait">B5纸-纵向 (4157x5905)</option>
+                    <option value="b5-landscape">B5纸-横向 (5905x4157)</option>
+                    <option value="a3-portrait">A3纸-纵向 (7015x9921)</option>
+                    <option value="a3-landscape">A3纸-横向 (9921x7015)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="paper-bg-select">🎨 纸张背景</label>
+                <select id="paper-bg-select">
+                    <optgroup label="纯色背景">
+                        <option value="white" selected>纯白色</option>
+                        <option value="cream">#FFF8DC 米黄色</option>
+                        <option value="lightgray">#F5F5F5 浅灰色</option>
+                    </optgroup>
+                    <optgroup label="真实纸张">
+                        <option value="real-grid-white">方格纸-白色</option>
+                        <option value="real-blank-white">空白纸-白色</option>
+                        <option value="real-lined-cream">横线纸-米黄</option>
+                        <option value="real-lined-vintage">横线纸-复古</option>
+                        <option value="real-blank-used">使用痕迹纸</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span>📐 文字位置凌乱度</span>
+                    <span class="slider-value" id="position-value">10%</span>
+                </div>
+                <input type="range" id="position-slider" min="0" max="100" value="10">
+                <div class="range-hint">
+                    <span>整齐排列</span>
+                    <span>凌乱不堪</span>
+                </div>
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span>📏 字号大小</span>
+                    <span class="slider-value" id="fontsize-value">24px</span>
+                </div>
+                <input type="range" id="fontsize-slider" min="16" max="48" value="24">
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span>📊 行间距</span>
+                    <span class="slider-value" id="lineheight-value">1.8</span>
+                </div>
+                <input type="range" id="lineheight-slider" min="1.2" max="3.0" step="0.1" value="1.8">
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span>✏️ 随机涂改概率</span>
+                    <span class="slider-value" id="scratch-value">3%</span>
+                </div>
+                <input type="range" id="scratch-slider" min="0" max="100" value="3">
+                <div class="range-hint">
+                    <span>完美无瑕</span>
+                    <span>涂改连篇</span>
+                </div>
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span>🖊️ 字体笔画凌乱度</span>
+                    <span class="slider-value" id="weight-value">5%</span>
+                </div>
+                <input type="range" id="weight-slider" min="0" max="100" value="5">
+                <div class="range-hint">
+                    <span>工整清晰</span>
+                    <span>歪七扭八</span>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="renderHandwriting()">🔄 刷新预览</button>
+                <button class="btn btn-secondary" onclick="downloadImage()">💾 下载图片</button>
+            </div>
+        </div>
+
+        <div class="right-preview">
+            <div class="preview-shell">
+                <div class="preview-toolbar">
+                    <div>
+                        <p class="preview-eyebrow">Live Preview</p>
+                        <h2 class="preview-title">手写画布</h2>
+                    </div>
+                    <div class="preview-meta">
+                        <span class="meta-chip" id="meta-paper">A4纸-纵向</span>
+                        <span class="meta-chip" id="meta-font">清松手写体5-行楷</span>
+                        <span class="meta-chip" id="meta-size">24px</span>
+                    </div>
+                </div>
+                <div id="canvas-container">
+                    <canvas id="handwriting-canvas"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== AI 功能模块 ====================
+
+        // AI Prompt 模板
+        const AI_PROMPT_TEMPLATE = `你是专业的学术笔记润色助手。
+
+核心规则：
+1. 严禁使用任何 Emoji 表情
+2. 使用简洁、高密度的专业语言，避免口语化
+3. 深度扩展内容：
+   - 每个概念至少扩展 2-3 个支撑点
+   - 关键名词必须补充定义或解释
+   - 多层级展开（标题→要点→详细说明）
+4. 输出格式：
+   # 主标题（H0）
+   ## 章节标题（H1）
+   ### 小节标题（H2）
+   正文内容...
+   注：补充说明（Note）
+
+输出要求：
+- 内容量：至少 500 字，确保充实
+- 层级清晰，适合手写展示，不要有过多空白内容
+- 保持严肃、专业的学术风格
+
+请对用户输入的文案进行润色和扩展。`;
+
+        // 本地代理地址
+        const PROXY_URL = '/api/chat';
+
+        // AI 润色功能（调用后端接口）
+        async function aiPolish() {
+            const userInput = textInput.value.trim();
+            if (!userInput) {
+                alert('请先输入文本');
+                return;
+            }
+
+            const btn = document.getElementById('ai-polish-btn');
+            btn.disabled = true;
+            btn.textContent = '🤖 AI 润色中...';
+
+            try {
+                const response = await fetch('/api/polish', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: userInput
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'AI 润色失败');
                 }
+
+                textInput.value = result.polished_text;
+                alert('润色完成！');
+
+                // 自动刷新预览
+                renderHandwriting();
+            } catch (error) {
+                alert('润色失败：' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🤖 AI 润色文案';
+            }
+        }
+
+        // ==================== 原有功能模块 ====================
+
+        // 获取 DOM 元素
+        const canvas = document.getElementById('handwriting-canvas');
+        const ctx = canvas.getContext('2d');
+        const textInput = document.getElementById('text-input');
+        const fontSelect = document.getElementById('font-select');
+        const paperSelect = document.getElementById('paper-select');
+        const paperBgSelect = document.getElementById('paper-bg-select');
+        const positionSlider = document.getElementById('position-slider');
+        const fontsizeSlider = document.getElementById('fontsize-slider');
+        const lineheightSlider = document.getElementById('lineheight-slider');
+        const scratchSlider = document.getElementById('scratch-slider');
+        const weightSlider = document.getElementById('weight-slider');
+        const metaPaper = document.getElementById('meta-paper');
+        const metaFont = document.getElementById('meta-font');
+        const metaSize = document.getElementById('meta-size');
+
+        // 纸张尺寸配置（600dpi 实际像素）
+        const paperSizes = {
+            'a4-portrait': { w: 4960, h: 7015 },
+            'a4-landscape': { w: 7015, h: 4960 },
+            'b5-portrait': { w: 4157, h: 5905 },
+            'b5-landscape': { w: 5905, h: 4157 },
+            'a3-portrait': { w: 7015, h: 9921 },
+            'a3-landscape': { w: 9921, h: 7015 }
+        };
+
+        // 纸张背景配置
+        const paperBackgrounds = {
+            'white': { type: 'color', value: '#ffffff' },
+            'cream': { type: 'color', value: '#FFF8DC' },
+            'lightgray': { type: 'color', value: '#F5F5F5' },
+            'real-grid-white': { type: 'image', src: '../assets/papers/processed/grid-white-clean.jpg' },
+            'real-blank-white': { type: 'image', src: '../assets/papers/processed/blank-white.jpg' },
+            'real-lined-cream': { type: 'image', src: '../assets/papers/processed/lined-cream-new.jpg' },
+            'real-lined-vintage': { type: 'image', src: '../assets/papers/processed/lined-yellow-vintage.jpg' },
+            'real-blank-used': { type: 'image', src: '../assets/papers/processed/blank-used-marks.jpg' }
+        };
+
+        // 预加载的背景图片缓存
+        const bgImageCache = {};
+
+        const PREVIEW_BASE_WIDTH = 700;
+        const REAL_PAPER_BASE_LINEHEIGHT = 1.8;
+
+        // 真实纸张版式配置（按原图比例）
+        const realPaperLayouts = {
+            'real-grid-white': {
+                leftRatio: 0.08,
+                rightRatio: 0.08,
+                topLineRatio: 0.045,
+                topRatio: 0.075,
+                bottomRatio: 0.065,
+                lineStepRatio: 48 / 1986
+            },
+            'real-lined-cream': {
+                leftRatio: 0.09,
+                rightRatio: 0.14,
+                topLineRatio: 0.068,
+                topRatio: 0.09,
+                bottomRatio: 0.09,
+                lineStepRatio: 66 / 1796
+            },
+            'real-lined-vintage': {
+                leftRatio: 0.085,
+                rightRatio: 0.085,
+                topLineRatio: 0.073,
+                topRatio: 0.10,
+                bottomRatio: 0.10,
+                lineStepRatio: 70 / 1932
+            },
+            'real-blank-white': {
+                leftRatio: 0.08,
+                rightRatio: 0.08,
+                topRatio: 0.09,
+                bottomRatio: 0.085
+            },
+            'real-blank-used': {
+                leftRatio: 0.08,
+                rightRatio: 0.08,
+                topRatio: 0.09,
+                bottomRatio: 0.09
+            }
+        };
+
+        function getBackgroundDrawRect(targetWidth, targetHeight, imageWidth, imageHeight) {
+            if (!imageWidth || !imageHeight) {
+                return { x: 0, y: 0, w: targetWidth, h: targetHeight };
+            }
+
+            const scale = Math.min(targetWidth / imageWidth, targetHeight / imageHeight);
+            const drawWidth = imageWidth * scale;
+            const drawHeight = imageHeight * scale;
+
+            return {
+                x: (targetWidth - drawWidth) / 2,
+                y: (targetHeight - drawHeight) / 2,
+                w: drawWidth,
+                h: drawHeight
+            };
+        }
+
+        function drawPaperBackground(drawCtx, bgKey, targetWidth, targetHeight, bgImage) {
+            const bgConfig = paperBackgrounds[bgKey] || paperBackgrounds.white;
+            let drawRect = { x: 0, y: 0, w: targetWidth, h: targetHeight };
+
+            if (bgConfig.type === 'color') {
+                drawCtx.fillStyle = bgConfig.value;
+                drawCtx.fillRect(0, 0, targetWidth, targetHeight);
+                return drawRect;
+            }
+
+            // 图片背景统一使用等比缩放，避免拉伸导致错行
+            drawCtx.fillStyle = '#ffffff';
+            drawCtx.fillRect(0, 0, targetWidth, targetHeight);
+
+            if (bgImage) {
+                drawRect = getBackgroundDrawRect(targetWidth, targetHeight, bgImage.width, bgImage.height);
+                drawCtx.drawImage(bgImage, drawRect.x, drawRect.y, drawRect.w, drawRect.h);
+            }
+
+            return drawRect;
+        }
+
+        function getTextAscent(drawCtx, fontSize) {
+            const metrics = drawCtx.measureText('测Ag');
+            if (metrics && Number.isFinite(metrics.actualBoundingBoxAscent) && metrics.actualBoundingBoxAscent > 0) {
+                return metrics.actualBoundingBoxAscent;
+            }
+            return fontSize * 0.78;
+        }
+
+        function getPaperTextLayout({
+            drawCtx,
+            paperBg,
+            targetWidth,
+            targetHeight,
+            drawRect,
+            fontSize,
+            lineHeight
+        }) {
+            const basePadding = 60 * (targetWidth / PREVIEW_BASE_WIDTH);
+            const config = realPaperLayouts[paperBg];
+            const hasRealPaperConfig = Boolean(config);
+
+            if (!hasRealPaperConfig) {
+                return {
+                    left: basePadding,
+                    right: targetWidth - basePadding,
+                    top: basePadding,
+                    bottom: targetHeight - basePadding,
+                    rowAdvance: fontSize * lineHeight,
+                    lineSnapped: false,
+                    naturalLineStep: null
+                };
+            }
+
+            const leftPadding = Math.max(basePadding * 0.65, drawRect.w * config.leftRatio);
+            const rightPadding = Math.max(basePadding * 0.65, drawRect.w * config.rightRatio);
+            const bottomPadding = Math.max(basePadding * 0.5, drawRect.h * config.bottomRatio);
+
+            const left = drawRect.x + leftPadding;
+            const right = drawRect.x + drawRect.w - rightPadding;
+            const bottom = drawRect.y + drawRect.h - bottomPadding;
+
+            let top = drawRect.y + Math.max(basePadding * 0.45, drawRect.h * config.topRatio);
+            let rowAdvance = fontSize * lineHeight;
+            let lineSnapped = false;
+            let naturalLineStep = null;
+
+            if (config.lineStepRatio) {
+                naturalLineStep = drawRect.h * config.lineStepRatio;
+                const sliderFactor = lineHeight / REAL_PAPER_BASE_LINEHEIGHT;
+                rowAdvance = naturalLineStep * sliderFactor;
+
+                const baselineY = drawRect.y + drawRect.h * config.topLineRatio;
+                top = baselineY - getTextAscent(drawCtx, fontSize);
+                lineSnapped = true;
+            }
+
+            return {
+                left,
+                right,
+                top: Math.max(drawRect.y, top),
+                bottom,
+                rowAdvance,
+                lineSnapped,
+                naturalLineStep
+            };
+        }
+
+        // 预加载背景图片
+        function preloadBackgroundImage(bgKey) {
+            return new Promise((resolve, reject) => {
+                const bgConfig = paperBackgrounds[bgKey];
+                if (!bgConfig || bgConfig.type !== 'image') {
+                    resolve(null);
+                    return;
+                }
+
+                // 如果已缓存，直接返回
+                if (bgImageCache[bgKey]) {
+                    resolve(bgImageCache[bgKey]);
+                    return;
+                }
+
+                // 加载图片
+                const img = new Image();
+                img.onload = () => {
+                    bgImageCache[bgKey] = img;
+                    resolve(img);
+                };
+                img.onerror = () => {
+                    console.error(`Failed to load background image: ${bgConfig.src}`);
+                    reject(new Error(`Failed to load ${bgConfig.src}`));
+                };
+                img.src = bgConfig.src;
             });
-        });
+        }
+
+
+        // 更新滑块显示值
+        positionSlider.oninput = function () {
+            document.getElementById('position-value').textContent = this.value + '%';
+        };
+
+        fontsizeSlider.oninput = function () {
+            document.getElementById('fontsize-value').textContent = this.value + 'px';
+        };
+
+        lineheightSlider.oninput = function () {
+            document.getElementById('lineheight-value').textContent = this.value;
+        };
+
+        scratchSlider.oninput = function () {
+            document.getElementById('scratch-value').textContent = this.value + '%';
+        };
+
+        weightSlider.oninput = function () {
+            document.getElementById('weight-value').textContent = this.value + '%';
+        };
+
+        // 监听参数变化，自动刷新
+        textInput.addEventListener('input', renderHandwriting);
+        fontSelect.addEventListener('change', renderHandwriting);
+        paperSelect.addEventListener('change', renderHandwriting);
+        paperBgSelect.addEventListener('change', renderHandwriting);
+        positionSlider.addEventListener('input', renderHandwriting);
+        fontsizeSlider.addEventListener('input', renderHandwriting);
+        lineheightSlider.addEventListener('input', renderHandwriting);
+        scratchSlider.addEventListener('input', renderHandwriting);
+        weightSlider.addEventListener('input', renderHandwriting);
+
+        function updatePreviewMeta() {
+            const paperText = paperSelect.options[paperSelect.selectedIndex]?.text || paperSelect.value;
+            const fontText = fontSelect.options[fontSelect.selectedIndex]?.text || fontSelect.value;
+            if (metaPaper) metaPaper.textContent = paperText.split('(')[0].trim();
+            if (metaFont) metaFont.textContent = fontText;
+            if (metaSize) metaSize.textContent = `${fontsizeSlider.value}px`;
+        }
+
+        // 主渲染函数
+        async function renderHandwriting() {
+            // 获取参数
+            const text = textInput.value;
+            const fontFamily = fontSelect.value;
+            const paperType = paperSelect.value;
+            const paperBg = paperBgSelect.value;
+            const positionJitter = parseInt(positionSlider.value) / 100;
+            const fontSize = parseInt(fontsizeSlider.value);
+            const lineHeight = parseFloat(lineheightSlider.value);
+            const scratchRate = parseInt(scratchSlider.value) / 100;
+            const weightVariation = parseInt(weightSlider.value) / 100;
+            updatePreviewMeta();
+
+            // 获取纸张实际尺寸和预览缩放
+            const paper = paperSizes[paperType];
+            const scale = PREVIEW_BASE_WIDTH / paper.w;
+            const displayWidth = Math.round(paper.w * scale);
+            const displayHeight = Math.round(paper.h * scale);
+
+            // 设置 Canvas 尺寸
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = displayWidth * dpr;
+            canvas.height = displayHeight * dpr;
+            canvas.style.width = displayWidth + 'px';
+            canvas.style.height = displayHeight + 'px';
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            // 绘制纸张背景（等比缩放）
+            let bgImage = null;
+            const bgConfig = paperBackgrounds[paperBg];
+            if (bgConfig && bgConfig.type === 'image') {
+                try {
+                    bgImage = await preloadBackgroundImage(paperBg);
+                } catch (error) {
+                    console.error('Background image load error:', error);
+                }
+            }
+            const drawRect = drawPaperBackground(ctx, paperBg, displayWidth, displayHeight, bgImage);
+
+            // 设置文字样式
+            ctx.font = `${fontSize}px "${fontFamily}", cursive`;
+            ctx.fillStyle = '#1e1e1e';
+            ctx.textBaseline = 'top';
+
+            const layout = getPaperTextLayout({
+                drawCtx: ctx,
+                paperBg,
+                targetWidth: displayWidth,
+                targetHeight: displayHeight,
+                drawRect,
+                fontSize,
+                lineHeight
+            });
+
+            // 渲染文字
+            const lines = text.split('\n');
+            let y = layout.top;
+            let reachedBottom = false;
+
+            for (const line of lines) {
+                let x = layout.left;
+
+                for (const char of line) {
+                    // 计算字符宽度
+                    const metrics = ctx.measureText(char);
+                    const charWidth = metrics.width + 2;
+
+                    // 智能换行：在写字之前检查是否会超出边界
+                    if (x + charWidth > layout.right && x > layout.left) {
+                        x = layout.left;
+                        y += layout.rowAdvance;
+                    }
+
+                    // 检查是否超出纸张底部
+                    if (y + fontSize > layout.bottom) {
+                        reachedBottom = true;
+                        break; // 停止渲染，避免超出纸张
+                    }
+
+                    // 计算随机偏移（限制范围，避免超出边界）
+                    const maxOffsetX = fontSize * positionJitter * 0.8; // 限制在 80%
+                    const maxOffsetY = layout.lineSnapped
+                        ? Math.min(layout.rowAdvance * 0.18, fontSize * positionJitter * 0.22)
+                        : fontSize * positionJitter * 0.4;
+                    const offsetX = (Math.random() - 0.5) * maxOffsetX;
+                    const offsetY = (Math.random() - 0.5) * maxOffsetY;
+
+                    // 确保字符不会超出左右边界
+                    const maxX = Math.max(layout.left, layout.right - charWidth);
+                    const finalX = Math.min(maxX, Math.max(layout.left, x + offsetX));
+                    const finalY = y + offsetY;
+
+                    // 字体粗细变化（通过多次绘制模拟）
+                    const shouldVaryWeight = Math.random() < weightVariation;
+                    if (shouldVaryWeight) {
+                        // 随机增加粗细（绘制多次，稍微偏移）
+                        const extraWeight = Math.floor(Math.random() * 3);
+                        for (let i = 0; i < extraWeight; i++) {
+                            const microOffset = i * 0.5;
+                            ctx.fillText(char, finalX + microOffset, finalY);
+                        }
+                    }
+
+                    // 绘制字符
+                    ctx.fillText(char, finalX, finalY);
+
+                    // 随机涂改效果（删除线）
+                    const shouldScratch = Math.random() < scratchRate;
+                    if (shouldScratch) {
+                        drawScratchLine(finalX, finalY, fontSize);
+                    }
+
+                    // 移动到下一个字符位置
+                    x += charWidth;
+                }
+
+                if (reachedBottom) {
+                    break;
+                }
+
+                // 换行
+                y += layout.rowAdvance;
+
+                // 检查是否超出纸张底部
+                if (y > layout.bottom) {
+                    break;
+                }
+            }
+        }
+
+        // 绘制涂改效果（真实手写风格）
+        function drawScratchLine(x, y, fontSize) {
+            ctx.save();
+            ctx.strokeStyle = '#1e1e1e';
+            ctx.fillStyle = '#1e1e1e';
+
+            const scratchType = Math.random();
+            const charW = fontSize * 0.9;
+            const charH = fontSize * 0.85;
+
+            if (scratchType < 0.6) {
+                // 密集横线涂改（最常见）：4-6条来回横线覆盖文字
+                ctx.lineWidth = 1.2;
+                ctx.globalAlpha = 0.7;
+                const lineCount = 4 + Math.floor(Math.random() * 3);
+                for (let i = 0; i < lineCount; i++) {
+                    const lineY = y + (charH * 0.15) + (charH * 0.7 / lineCount) * i;
+                    const jitterY = (Math.random() - 0.5) * 2;
+                    ctx.beginPath();
+                    ctx.moveTo(x - 2, lineY + jitterY);
+                    // 添加中间抖动点模拟手绘
+                    const midX = x + charW * 0.5;
+                    const midJitter = (Math.random() - 0.5) * 3;
+                    ctx.quadraticCurveTo(midX, lineY + midJitter, x + charW + 2, lineY + (Math.random() - 0.5) * 2);
+                    ctx.stroke();
+                }
+            } else if (scratchType < 0.85) {
+                // 涂黑覆盖：用半透明填充覆盖字符区域
+                ctx.globalAlpha = 0.55;
+                ctx.fillRect(x - 1, y + charH * 0.05, charW + 2, charH * 0.9);
+                // 再加几条横线增加涂抹感
+                ctx.globalAlpha = 0.3;
+                ctx.lineWidth = 2;
+                for (let i = 0; i < 3; i++) {
+                    const ly = y + charH * 0.2 + (charH * 0.6 / 3) * i;
+                    ctx.beginPath();
+                    ctx.moveTo(x - 2, ly + (Math.random() - 0.5) * 2);
+                    ctx.lineTo(x + charW + 2, ly + (Math.random() - 0.5) * 2);
+                    ctx.stroke();
+                }
+            } else {
+                // 圈画标记：用椭圆圈住错字
+                ctx.lineWidth = 1.5;
+                ctx.globalAlpha = 0.6;
+                const cx = x + charW * 0.5;
+                const cy = y + charH * 0.5;
+                const rx = charW * 0.6;
+                const ry = charH * 0.55;
+                ctx.beginPath();
+                ctx.ellipse(cx, cy, rx, ry, (Math.random() - 0.5) * 0.2, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        }
+
+        // 下载图片（使用实际 600dpi 分辨率）
+        async function downloadImage(shouldDownload = true) {
+            const paperType = paperSelect.value;
+            const paperBg = paperBgSelect.value;
+            const paper = paperSizes[paperType];
+            const text = textInput.value;
+            const fontFamily = fontSelect.value;
+            const positionJitter = parseInt(positionSlider.value) / 100;
+            const fontSize = parseInt(fontsizeSlider.value);
+            const lineHeight = parseFloat(lineheightSlider.value);
+            const scratchRate = parseInt(scratchSlider.value) / 100;
+            const weightVariation = parseInt(weightSlider.value) / 100;
+
+            // 创建高清 Canvas
+            const exportCanvas = document.createElement('canvas');
+            const exportCtx = exportCanvas.getContext('2d');
+            exportCanvas.width = paper.w;
+            exportCanvas.height = paper.h;
+
+            // 缩放比例（从预览尺寸到实际尺寸）
+            const exportScale = paper.w / PREVIEW_BASE_WIDTH;
+
+            // 绘制纸张背景（等比缩放）
+            let bgImage = null;
+            const bgConfig = paperBackgrounds[paperBg];
+            if (bgConfig && bgConfig.type === 'image') {
+                try {
+                    bgImage = await preloadBackgroundImage(paperBg);
+                } catch (error) {
+                    console.error('Background image load error:', error);
+                }
+            }
+            const drawRect = drawPaperBackground(exportCtx, paperBg, paper.w, paper.h, bgImage);
+
+            // 设置文字样式
+            const exportFontSize = fontSize * exportScale;
+            exportCtx.font = `${exportFontSize}px "${fontFamily}"`;
+            exportCtx.fillStyle = '#1e1e1e';
+            exportCtx.textBaseline = 'top';
+
+            const layout = getPaperTextLayout({
+                drawCtx: exportCtx,
+                paperBg,
+                targetWidth: paper.w,
+                targetHeight: paper.h,
+                drawRect,
+                fontSize: exportFontSize,
+                lineHeight
+            });
+
+            // 渲染文字
+            const lines = text.split('\n');
+            let y = layout.top;
+            let reachedBottom = false;
+
+            // 保存绘图状态
+            exportCtx.save();
+
+            for (const line of lines) {
+                let x = layout.left;
+
+                for (const char of line) {
+                    // 计算字符宽度
+                    const metrics = exportCtx.measureText(char);
+                    const charWidth = metrics.width + 2 * exportScale;
+
+                    // 智能换行：在写字之前检查是否会超出边界
+                    if (x + charWidth > layout.right && x > layout.left) {
+                        x = layout.left;
+                        y += layout.rowAdvance;
+                    }
+
+                    // 检查是否超出纸张底部
+                    if (y + exportFontSize > layout.bottom) {
+                        reachedBottom = true;
+                        break;
+                    }
+
+                    // 计算随机偏移（限制范围）
+                    const maxOffsetX = exportFontSize * positionJitter * 0.8;
+                    const maxOffsetY = layout.lineSnapped
+                        ? Math.min(layout.rowAdvance * 0.18, exportFontSize * positionJitter * 0.22)
+                        : exportFontSize * positionJitter * 0.4;
+                    const offsetX = (Math.random() - 0.5) * maxOffsetX;
+                    const offsetY = (Math.random() - 0.5) * maxOffsetY;
+
+                    // 确保字符不会超出左右边界
+                    const maxX = Math.max(layout.left, layout.right - charWidth);
+                    const finalX = Math.min(maxX, Math.max(layout.left, x + offsetX));
+                    const finalY = y + offsetY;
+
+                    // 字体粗细变化
+                    const shouldVaryWeight = Math.random() < weightVariation;
+                    if (shouldVaryWeight) {
+                        const extraWeight = Math.floor(Math.random() * 3);
+                        for (let i = 0; i < extraWeight; i++) {
+                            const microOffset = i * 0.5 * exportScale;
+                            exportCtx.fillText(char, finalX + microOffset, finalY);
+                        }
+                    }
+
+                    // 绘制字符
+                    exportCtx.fillText(char, finalX, finalY);
+
+                    // 随机涂改效果
+                    const shouldScratch = Math.random() < scratchRate;
+                    if (shouldScratch) {
+                        // 绘制涂改线（简化版）
+                        exportCtx.save();
+                        exportCtx.strokeStyle = '#1e1e1e';
+                        exportCtx.lineWidth = 2 * exportScale;
+                        exportCtx.globalAlpha = 0.6;
+
+                        const scratchType = Math.random();
+                        if (scratchType < 0.7) {
+                            // 横线删除
+                            exportCtx.beginPath();
+                            const lineY = finalY + exportFontSize * 0.5;
+                            exportCtx.moveTo(finalX - 2 * exportScale, lineY);
+                            exportCtx.lineTo(finalX + charWidth + 2 * exportScale, lineY);
+                            exportCtx.stroke();
+                        }
+
+                        exportCtx.restore();
+                    }
+
+                    // 移动到下一个字符位置
+                    x += charWidth;
+                }
+
+                if (reachedBottom) {
+                    break;
+                }
+
+                // 换行
+                y += layout.rowAdvance;
+
+                // 检查是否超出纸张底部
+                if (y > layout.bottom) {
+                    break;
+                }
+            }
+
+            exportCtx.restore();
+
+            const dataUrl = exportCanvas.toDataURL('image/png');
+
+            // 下载
+            if (shouldDownload) {
+                const link = document.createElement('a');
+                link.download = 'handwriting-' + paperType + '-' + Date.now() + '.png';
+                link.href = dataUrl;
+                link.click();
+            }
+
+            return dataUrl;
+        }
+
+        // 打印页面（使用导出分辨率）
+        async function printHandwriting() {
+            try {
+                const dataUrl = await downloadImage(false);
+                const printWindow = window.open('', '_blank');
+
+                if (!printWindow) {
+                    alert('无法打开打印窗口，请检查浏览器弹窗设置');
+                    return;
+                }
+
+                printWindow.document.open();
+                printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html lang="zh-CN">
+                    <head>
+                        <meta charset="UTF-8" />
+                        <title>打印手写体</title>
+                        <style>
+                            html, body {
+                                margin: 0;
+                                padding: 0;
+                                background: #fff;
+                            }
+                            body {
+                                display: flex;
+                                justify-content: center;
+                                align-items: flex-start;
+                            }
+                            img {
+                                width: 100%;
+                                max-width: 100%;
+                                height: auto;
+                                display: block;
+                            }
+                            @media print {
+                                @page { margin: 0; size: auto; }
+                                body { padding: 0; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <img src="${dataUrl}" alt="打印手写体" />
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+
+                printWindow.onload = () => {
+                    printWindow.focus();
+                    printWindow.print();
+                };
+            } catch (error) {
+                console.error('Print error:', error);
+                alert('打印失败：' + error.message);
+            }
+        }
+
+        // 页面加载时自动渲染
+        window.onload = function () {
+            // 从 URL hash 读取自定义文本
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#text=')) {
+                const text = decodeURIComponent(hash.substring(6));
+                textInput.value = text;
+            }
+            renderHandwriting();
+        };
     </script>
-</body></html>
+</body>
+
+</html>
