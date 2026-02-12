@@ -750,6 +750,7 @@
         </div>
     </div>
 
+    <script src="../assets/js/backend-render-client.js"></script>
     <script>
         // ==================== AI 功能模块 ====================
 
@@ -1271,173 +1272,96 @@
             ctx.restore();
         }
 
-        // 下载图片（使用实际 600dpi 分辨率）
-        async function downloadImage(shouldDownload = true) {
-            const paperType = paperSelect.value;
-            const paperBg = paperBgSelect.value;
-            const paper = paperSizes[paperType];
-            const text = textInput.value;
-            const fontFamily = fontSelect.value;
-            const positionJitter = parseInt(positionSlider.value) / 100;
-            const fontSize = parseInt(fontsizeSlider.value);
-            const lineHeight = parseFloat(lineheightSlider.value);
-            const scratchRate = parseInt(scratchSlider.value) / 100;
-            const weightVariation = parseInt(weightSlider.value) / 100;
+        const backendClient = window.createHandwriteBackendClient();
 
-            // 创建高清 Canvas
-            const exportCanvas = document.createElement('canvas');
-            const exportCtx = exportCanvas.getContext('2d');
-            exportCanvas.width = paper.w;
-            exportCanvas.height = paper.h;
-
-            // 缩放比例（从预览尺寸到实际尺寸）
-            const exportScale = paper.w / PREVIEW_BASE_WIDTH;
-
-            // 绘制纸张背景（等比缩放）
-            let bgImage = null;
-            const bgConfig = paperBackgrounds[paperBg];
-            if (bgConfig && bgConfig.type === 'image') {
-                try {
-                    bgImage = await preloadBackgroundImage(paperBg);
-                } catch (error) {
-                    console.error('Background image load error:', error);
+        function setActionStatus(action, text, busy) {
+            const allButtons = document.querySelectorAll('button[onclick*="downloadImage"], button[onclick*="printHandwriting"]');
+            allButtons.forEach(btn => {
+                if (!btn.dataset.originalText) {
+                    btn.dataset.originalText = btn.textContent;
                 }
-            }
-            const drawRect = drawPaperBackground(exportCtx, paperBg, paper.w, paper.h, bgImage);
-
-            // 设置文字样式
-            const exportFontSize = fontSize * exportScale;
-            exportCtx.font = `${exportFontSize}px "${fontFamily}"`;
-            exportCtx.fillStyle = '#1e1e1e';
-            exportCtx.textBaseline = 'top';
-
-            const layout = getPaperTextLayout({
-                drawCtx: exportCtx,
-                paperBg,
-                targetWidth: paper.w,
-                targetHeight: paper.h,
-                drawRect,
-                fontSize: exportFontSize,
-                lineHeight
+                btn.disabled = busy;
             });
 
-            // 渲染文字
-            const lines = text.split('\n');
-            let y = layout.top;
-            let reachedBottom = false;
+            const targetSelector = action === 'print'
+                ? 'button[onclick*="printHandwriting"]'
+                : 'button[onclick*="downloadImage"]';
 
-            // 保存绘图状态
-            exportCtx.save();
-
-            for (const line of lines) {
-                let x = layout.left;
-
-                for (const char of line) {
-                    // 计算字符宽度
-                    const metrics = exportCtx.measureText(char);
-                    const charWidth = metrics.width + 2 * exportScale;
-
-                    // 智能换行：在写字之前检查是否会超出边界
-                    if (x + charWidth > layout.right && x > layout.left) {
-                        x = layout.left;
-                        y += layout.rowAdvance;
-                    }
-
-                    // 检查是否超出纸张底部
-                    if (y + exportFontSize > layout.bottom) {
-                        reachedBottom = true;
-                        break;
-                    }
-
-                    // 计算随机偏移（限制范围）
-                    const maxOffsetX = exportFontSize * positionJitter * 0.8;
-                    const maxOffsetY = layout.lineSnapped
-                        ? Math.min(layout.rowAdvance * 0.18, exportFontSize * positionJitter * 0.22)
-                        : exportFontSize * positionJitter * 0.4;
-                    const offsetX = (Math.random() - 0.5) * maxOffsetX;
-                    const offsetY = (Math.random() - 0.5) * maxOffsetY;
-
-                    // 确保字符不会超出左右边界
-                    const maxX = Math.max(layout.left, layout.right - charWidth);
-                    const finalX = Math.min(maxX, Math.max(layout.left, x + offsetX));
-                    const finalY = y + offsetY;
-
-                    // 字体粗细变化
-                    const shouldVaryWeight = Math.random() < weightVariation;
-                    if (shouldVaryWeight) {
-                        const extraWeight = Math.floor(Math.random() * 3);
-                        for (let i = 0; i < extraWeight; i++) {
-                            const microOffset = i * 0.5 * exportScale;
-                            exportCtx.fillText(char, finalX + microOffset, finalY);
-                        }
-                    }
-
-                    // 绘制字符
-                    exportCtx.fillText(char, finalX, finalY);
-
-                    // 随机涂改效果
-                    const shouldScratch = Math.random() < scratchRate;
-                    if (shouldScratch) {
-                        // 绘制涂改线（简化版）
-                        exportCtx.save();
-                        exportCtx.strokeStyle = '#1e1e1e';
-                        exportCtx.lineWidth = 2 * exportScale;
-                        exportCtx.globalAlpha = 0.6;
-
-                        const scratchType = Math.random();
-                        if (scratchType < 0.7) {
-                            // 横线删除
-                            exportCtx.beginPath();
-                            const lineY = finalY + exportFontSize * 0.5;
-                            exportCtx.moveTo(finalX - 2 * exportScale, lineY);
-                            exportCtx.lineTo(finalX + charWidth + 2 * exportScale, lineY);
-                            exportCtx.stroke();
-                        }
-
-                        exportCtx.restore();
-                    }
-
-                    // 移动到下一个字符位置
-                    x += charWidth;
-                }
-
-                if (reachedBottom) {
-                    break;
-                }
-
-                // 换行
-                y += layout.rowAdvance;
-
-                // 检查是否超出纸张底部
-                if (y > layout.bottom) {
-                    break;
-                }
+            if (busy) {
+                document.querySelectorAll(targetSelector).forEach(btn => {
+                    btn.textContent = text;
+                });
+            } else {
+                allButtons.forEach(btn => {
+                    btn.textContent = btn.dataset.originalText || btn.textContent;
+                });
             }
-
-            exportCtx.restore();
-
-            const dataUrl = exportCanvas.toDataURL('image/png');
-
-            // 下载
-            if (shouldDownload) {
-                const link = document.createElement('a');
-                link.download = 'handwriting-' + paperType + '-' + Date.now() + '.png';
-                link.href = dataUrl;
-                link.click();
-            }
-
-            return dataUrl;
         }
 
-        // 打印页面（使用导出分辨率）
+        function buildRenderPayload() {
+            const text = textInput.value.trim();
+            if (!text) {
+                throw new Error('请先输入文本');
+            }
+
+            return {
+                text,
+                font_family: fontSelect.value,
+                paper_type: paperSelect.value,
+                paper_background: paperBgSelect.value,
+                position_jitter: parseInt(positionSlider.value),
+                font_size: parseInt(fontsizeSlider.value),
+                line_height: parseFloat(lineheightSlider.value),
+                scratch_rate: parseInt(scratchSlider.value),
+                weight_variation: parseInt(weightSlider.value),
+                note_sloppiness: 12,
+                render_scale: 0.5,
+                random_seed: Date.now() % 2147483647
+            };
+        }
+
+        async function runBackendRender(action, onProgress) {
+            const payload = buildRenderPayload();
+            return backendClient.runRenderTask(payload, onProgress);
+        }
+
+        // 导出（走后端任务）
+        async function downloadImage(shouldDownload = true) {
+            try {
+                setActionStatus('export', '⏳ 提交任务中...', true);
+                const { blob, filename } = await runBackendRender('export', (progressText) => {
+                    setActionStatus('export', progressText, true);
+                });
+
+                if (shouldDownload) {
+                    setActionStatus('export', '⏳ 下载文件中...', true);
+                    backendClient.downloadBlob(blob, filename);
+                }
+
+                return await backendClient.blobToDataUrl(blob);
+            } catch (error) {
+                console.error('Download error:', error);
+                alert('导出失败：' + error.message);
+                throw error;
+            } finally {
+                setActionStatus('export', '', false);
+            }
+        }
+
+        // 打印（走后端任务）
         async function printHandwriting() {
             try {
-                const dataUrl = await downloadImage(false);
+                setActionStatus('print', '⏳ 提交任务中...', true);
+                const { blob } = await runBackendRender('print', (progressText) => {
+                    setActionStatus('print', progressText, true);
+                });
+                setActionStatus('print', '⏳ 准备打印中...', true);
+
+                const dataUrl = await backendClient.blobToDataUrl(blob);
                 const printWindow = window.open('', '_blank');
 
                 if (!printWindow) {
-                    alert('无法打开打印窗口，请检查浏览器弹窗设置');
-                    return;
+                    throw new Error('无法打开打印窗口，请检查浏览器弹窗设置');
                 }
 
                 printWindow.document.open();
@@ -1484,6 +1408,8 @@
             } catch (error) {
                 console.error('Print error:', error);
                 alert('打印失败：' + error.message);
+            } finally {
+                setActionStatus('print', '', false);
             }
         }
 

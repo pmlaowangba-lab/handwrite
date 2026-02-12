@@ -4,9 +4,10 @@ interface HeaderProps {
   onPrint: () => void;
   onExport: () => void;
   busyAction: 'print' | 'export' | null;
+  taskStatus: string | null;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onPrint, onExport, busyAction }) => {
+export const Header: React.FC<HeaderProps> = ({ onPrint, onExport, busyAction, taskStatus }) => {
   const isBusy = busyAction !== null;
 
   return (
@@ -22,6 +23,11 @@ export const Header: React.FC<HeaderProps> = ({ onPrint, onExport, busyAction })
         </div>
       </div>
       <div className="flex items-center gap-2">
+        {taskStatus && (
+          <span className="text-xs text-navy-800/70 bg-white/70 border border-gray-200 rounded-full px-2.5 py-1">
+            {taskStatus}
+          </span>
+        )}
         <button
           className="flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-white text-navy-800 border border-gray-200 shadow-sm hover:shadow hover:bg-gray-50 text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={onPrint}
