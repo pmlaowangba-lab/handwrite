@@ -53,6 +53,20 @@
       return backendBaseUrl + (path.startsWith('/') ? '' : '/') + path;
     }
 
+    async function readErrorMessage(response, fallback) {
+      try {
+        const payload = await response.json();
+        if (payload && typeof payload === 'object') {
+          if (payload.detail) return String(payload.detail);
+          if (payload.error) return String(payload.error);
+          if (payload.message) return String(payload.message);
+        }
+      } catch (error) {
+        return (await response.text()) || fallback;
+      }
+      return fallback;
+    }
+
     async function submitRenderTask(payload) {
       const response = await fetch(backendApiUrl('/api/v1/render/tasks'), {
         method: 'POST',
@@ -117,12 +131,28 @@
       return fetchRenderedFile(task);
     }
 
+    async function polishNote(payload) {
+      const response = await fetch(backendApiUrl('/api/v1/ai/polish-note'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const detail = await readErrorMessage(response, response.statusText);
+        throw new Error(`AI 润色失败（${response.status}）：${detail}`);
+      }
+
+      return response.json();
+    }
+
     return {
       backendApiUrl,
       submitRenderTask,
       pollRenderTask,
       fetchRenderedFile,
       runRenderTask,
+      polishNote,
       blobToDataUrl,
       downloadBlob
     };

@@ -754,34 +754,7 @@
     <script>
         // ==================== AI 功能模块 ====================
 
-        // AI Prompt 模板
-        const AI_PROMPT_TEMPLATE = `你是专业的学术笔记润色助手。
-
-核心规则：
-1. 严禁使用任何 Emoji 表情
-2. 使用简洁、高密度的专业语言，避免口语化
-3. 深度扩展内容：
-   - 每个概念至少扩展 2-3 个支撑点
-   - 关键名词必须补充定义或解释
-   - 多层级展开（标题→要点→详细说明）
-4. 输出格式：
-   # 主标题（H0）
-   ## 章节标题（H1）
-   ### 小节标题（H2）
-   正文内容...
-   注：补充说明（Note）
-
-输出要求：
-- 内容量：至少 500 字，确保充实
-- 层级清晰，适合手写展示，不要有过多空白内容
-- 保持严肃、专业的学术风格
-
-请对用户输入的文案进行润色和扩展。`;
-
-        // 本地代理地址
-        const PROXY_URL = '/api/chat';
-
-        // AI 润色功能（调用后端接口）
+        // AI 润色功能（调用统一后端 API）
         async function aiPolish() {
             const userInput = textInput.value.trim();
             if (!userInput) {
@@ -794,24 +767,21 @@
             btn.textContent = '🤖 AI 润色中...';
 
             try {
-                const response = await fetch('/api/polish', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        text: userInput
-                    })
+                const result = await backendClient.polishNote({
+                    text: userInput,
+                    paper_type: paperSelect.value,
+                    font_size: parseInt(fontsizeSlider.value),
+                    line_height: parseFloat(lineheightSlider.value),
+                    render_scale: 0.5
                 });
 
-                const result = await response.json();
-
-                if (!result.success) {
-                    throw new Error(result.error || 'AI 润色失败');
-                }
-
                 textInput.value = result.polished_text;
-                alert('润色完成！');
+                const ratio = result.metadata?.estimated_fill_ratio;
+                if (typeof ratio === 'number') {
+                    alert(`润色完成！预计纸张铺满度：${Math.round(ratio * 100)}%`);
+                } else {
+                    alert('润色完成！');
+                }
 
                 // 自动刷新预览
                 renderHandwriting();

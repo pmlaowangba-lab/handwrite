@@ -89,20 +89,19 @@
 
     <style>
         :root {
-            --bg-main: #f3f7ff;
-            --bg-accent: #f8faff;
-            --surface: rgba(255, 255, 255, 0.88);
-            --surface-strong: rgba(255, 255, 255, 0.96);
-            --text-1: #111827;
+            --bg-main: #e8e6df;
+            --surface: rgba(255, 255, 255, 0.92);
+            --surface-strong: rgba(255, 255, 255, 0.94);
+            --text-1: #0f172a;
             --text-2: #475569;
             --text-3: #64748b;
-            --border: rgba(148, 163, 184, 0.28);
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --purple: #7c3aed;
-            --green: #10b981;
-            --card-shadow: 0 12px 40px rgba(37, 99, 235, 0.12);
-            --focus: 0 0 0 3px rgba(37, 99, 235, 0.18);
+            --border: rgba(148, 163, 184, 0.3);
+            --primary: #1e3a8a;
+            --primary-dark: #172554;
+            --purple: #6d28d9;
+            --green: #0f766e;
+            --card-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+            --focus: 0 0 0 3px rgba(30, 58, 138, 0.16);
         }
 
         * {
@@ -113,33 +112,71 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background:
-                radial-gradient(1200px 450px at 10% -20%, #dbeafe 0%, transparent 70%),
-                radial-gradient(900px 400px at 90% -10%, #ede9fe 0%, transparent 68%),
-                linear-gradient(180deg, var(--bg-main), var(--bg-accent));
+            background: var(--bg-main);
             min-height: 100vh;
             overflow: hidden;
             color: var(--text-1);
         }
 
+        .top-bar {
+            height: 56px;
+            background: #586a74;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            color: #fff;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: #1e3a5f;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.3);
+        }
+
+        .brand-title {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .brand-title span {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            margin-left: 4px;
+        }
+
         .container {
             display: flex;
             gap: 16px;
-            height: 100vh;
-            padding: 16px;
+            height: calc(100vh - 56px);
+            padding: 12px;
         }
 
         .left-panel {
-            width: 390px;
+            width: 420px;
             min-width: 320px;
-            max-width: 430px;
-            background: var(--surface);
+            max-width: 440px;
+            background: rgba(248, 248, 248, 0.9);
             border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 20px;
+            border-radius: 20px;
+            padding: 14px 16px;
             overflow-y: auto;
             box-shadow: var(--card-shadow);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(6px);
         }
 
         .left-panel::-webkit-scrollbar {
@@ -152,11 +189,7 @@
         }
 
         .panel-header {
-            padding: 16px;
-            border-radius: 16px;
-            margin-bottom: 18px;
-            background: linear-gradient(120deg, rgba(37, 99, 235, 0.11), rgba(124, 58, 237, 0.09));
-            border: 1px solid rgba(59, 130, 246, 0.2);
+            display: none;
         }
 
         .left-panel h1 {
@@ -176,21 +209,21 @@
         .section-title {
             display: flex;
             align-items: center;
-            margin: 10px 0 14px;
-            color: #334155;
+            margin: 14px 0 12px;
+            color: #475569;
             font-weight: 700;
-            font-size: 12px;
+            font-size: 11px;
             letter-spacing: 0.08em;
             text-transform: uppercase;
         }
 
         .section-title::before {
             content: '';
-            width: 14px;
+            width: 10px;
             height: 2px;
             border-radius: 999px;
             margin-right: 8px;
-            background: linear-gradient(90deg, var(--primary), #8b5cf6);
+            background: #64748b;
         }
 
         .form-group {
@@ -313,8 +346,8 @@
             width: 100%;
             border: none;
             border-radius: 12px;
-            padding: 12px 14px;
-            font-size: 14px;
+            padding: 10px 14px;
+            font-size: 13px;
             font-weight: 700;
             cursor: pointer;
             color: #fff;
@@ -331,14 +364,14 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.26);
+            background: #1e2f4e;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25);
             margin-bottom: 10px;
         }
 
         .btn-secondary {
-            background: linear-gradient(135deg, var(--green), #059669);
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25);
+            background: linear-gradient(135deg, var(--green), #115e59);
+            box-shadow: 0 8px 16px rgba(15, 118, 110, 0.22);
         }
 
         .btn-ai {
@@ -437,26 +470,21 @@
         }
 
         .global-actions {
-            position: fixed;
-            top: 14px;
-            right: 16px;
             display: flex;
             gap: 8px;
-            z-index: 999;
+            align-items: center;
         }
 
         .global-btn {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            border: 1px solid rgba(148, 163, 184, 0.3);
-            border-radius: 10px;
-            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+            padding: 7px 14px;
             font-size: 13px;
             font-weight: 700;
             cursor: pointer;
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
             transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease;
         }
 
@@ -465,16 +493,16 @@
         }
 
         .global-btn.print {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             color: #1f2937;
-            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.16);
         }
 
         .global-btn.export {
-            background: linear-gradient(120deg, #0f172a, #1e293b);
+            background: #0f213f;
             color: #fff;
-            border-color: rgba(15, 23, 42, 0.55);
-            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.28);
+            border-color: rgba(15, 23, 42, 0.65);
+            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.24);
         }
 
         .right-preview {
@@ -486,9 +514,9 @@
 
         .preview-shell {
             width: 100%;
-            background: var(--surface-strong);
+            background: rgba(244, 244, 244, 0.88);
             border: 1px solid var(--border);
-            border-radius: 24px;
+            border-radius: 20px;
             box-shadow: var(--card-shadow);
             overflow: hidden;
             display: flex;
@@ -502,7 +530,7 @@
             align-items: flex-start;
             gap: 12px;
             padding: 14px 18px;
-            background: linear-gradient(90deg, rgba(248, 250, 252, 0.95), rgba(239, 246, 255, 0.95));
+            background: linear-gradient(90deg, rgba(248, 250, 252, 0.94), rgba(241, 245, 249, 0.94));
             border-bottom: 1px solid rgba(148, 163, 184, 0.26);
         }
 
@@ -540,7 +568,7 @@
         #canvas-container {
             margin: 18px;
             background: #fff;
-            border-radius: 18px;
+            border-radius: 8px;
             border: 1px solid rgba(148, 163, 184, 0.24);
             box-shadow: 0 6px 22px rgba(15, 23, 42, 0.08);
             overflow: auto;
@@ -555,12 +583,143 @@
             display: block;
             max-width: 100%;
             height: auto;
-            border-radius: 8px;
+            border-radius: 4px;
+        }
+
+        .text-editor details {
+            border: 1px solid rgba(203, 213, 225, 0.85);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.72);
+            padding: 10px 12px;
+        }
+
+        .text-editor summary {
+            list-style: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .text-editor summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .text-editor details[open] summary {
+            margin-bottom: 10px;
+        }
+
+        .print-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(2px);
+        }
+
+        .print-modal.active {
+            display: flex;
+        }
+
+        .print-modal-card {
+            width: min(880px, calc(100vw - 48px));
+            max-height: calc(100vh - 56px);
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.35);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .print-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(203, 213, 225, 0.8);
+        }
+
+        .print-modal-header h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #0f172a;
+        }
+
+        .print-modal-close {
+            border: none;
+            background: transparent;
+            color: #475569;
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .print-modal-body {
+            flex: 1;
+            overflow: auto;
+            padding: 14px;
+            background: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .print-modal-body img {
+            width: auto;
+            max-width: 100%;
+            max-height: calc(100vh - 210px);
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            border-radius: 4px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.14);
+            background: #fff;
+        }
+
+        .print-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 12px 14px;
+            border-top: 1px solid rgba(203, 213, 225, 0.8);
+            background: #fff;
+        }
+
+        .print-modal-btn {
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 8px 14px;
+            cursor: pointer;
+        }
+
+        .print-modal-btn.ghost {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .print-modal-btn.primary {
+            background: #0f213f;
+            color: #fff;
         }
 
         @media (max-width: 1180px) {
             body {
                 overflow: auto;
+            }
+
+            .top-bar {
+                height: auto;
+                padding: 10px;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .brand-title {
+                font-size: 18px;
             }
 
             .container {
@@ -586,64 +745,57 @@
             }
 
             .global-actions {
-                position: static;
-                padding: 10px 12px 0;
-                justify-content: flex-end;
+                margin-left: auto;
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="global-actions">
-        <button class="global-btn print" onclick="printHandwriting()">🖨️ 打印</button>
-        <button class="global-btn export" onclick="downloadImage()">💾 导出</button>
-    </div>
+    <header class="top-bar">
+        <div class="brand">
+            <span class="brand-icon">✒</span>
+            <h1 class="brand-title">老王手写体 <span>Pro</span></h1>
+        </div>
+        <div class="global-actions">
+            <button class="global-btn print" onclick="printHandwriting()">打印</button>
+            <button class="global-btn export" onclick="downloadImage()">导出</button>
+        </div>
+    </header>
     <div class="container">
         <!-- 左侧参数面板 -->
         <div class="left-panel">
             <div class="panel-header">
-                <h1>✍️ 手写体生成器</h1>
+                <h1>手写体生成器</h1>
                 <p>输入文本，实时生成手写效果，适合录屏、教学与内容创作。</p>
             </div>
 
-            <div class="section-title">AI 辅助</div>
-            <div class="section-title">文本内容</div>
-            <div class="form-group">
-                <label for="text-input">📝 输入文本</label>
-                <textarea id="text-input" placeholder="在这里输入你想要转换的文字...">这是一段手写体测试文字。
+            <div class="section-title">内容编辑</div>
+            <div class="form-group text-editor">
+                <details open>
+                    <summary>展开 / 收起正文输入</summary>
+                    <textarea id="text-input" placeholder="在这里输入你想要转换的文字...">这是一段手写体测试文字。
 你可以输入任何内容，
 系统会自动生成手写效果。
 
 适合用于视频录制、
 笔记展示等场景。</textarea>
-                <button class="btn btn-ai ai-polish-btn" onclick="aiPolish()" id="ai-polish-btn">
-                    🤖 AI 润色文案
-                </button>
+                    <button class="btn btn-ai ai-polish-btn" onclick="aiPolish()" id="ai-polish-btn">
+                        AI 润色文案
+                    </button>
+                </details>
             </div>
 
             <div class="section-title">视觉参数</div>
-            <div class="form-group">
-                <label for="font-select">🎨 选择字体</label>
+            <div class="form-group" style="display:none;">
+                <label for="font-select">字体选择</label>
                 <select id="font-select">
-                    <option value="清松手写体1-圆润">清松手写体1-圆润</option>
-                    <option value="清松手写体2-秀气">清松手写体2-秀气</option>
-                    <option value="清松手写体3-呆萌">清松手写体3-呆萌</option>
-                    <option value="清松手写体4-POP">清松手写体4-POP</option>
                     <option value="清松手写体5-行楷" selected>清松手写体5-行楷</option>
-                    <option value="清松手写体6-Q萌">清松手写体6-Q萌</option>
-                    <option value="清松手写体7-飘逸">清松手写体7-飘逸</option>
-                    <option value="清松手写体8-随性">清松手写体8-随性</option>
-                    <option value="沐瑶软笔手写体">沐瑶软笔手写体</option>
-                    <option value="沐瑶随心手写体">沐瑶随心手写体</option>
-                    <option value="内海字体">内海字体</option>
-                    <option value="她屿山海">她屿山海</option>
-                    <option value="栗壳坚坚体">栗壳坚坚体</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="paper-select">📄 纸张尺寸</label>
+                <label for="paper-select">纸张尺寸</label>
                 <select id="paper-select">
                     <option value="a4-portrait" selected>A4纸-纵向 (4960x7015)</option>
                     <option value="a4-landscape">A4纸-横向 (7015x4960)</option>
@@ -655,7 +807,7 @@
             </div>
 
             <div class="form-group">
-                <label for="paper-bg-select">🎨 纸张背景</label>
+                <label for="paper-bg-select">纸张背景</label>
                 <select id="paper-bg-select">
                     <optgroup label="纯色背景">
                         <option value="white" selected>纯白色</option>
@@ -674,7 +826,7 @@
 
             <div class="slider-group">
                 <div class="slider-label">
-                    <span>📐 文字位置凌乱度</span>
+                    <span>文字位置凌乱度</span>
                     <span class="slider-value" id="position-value">10%</span>
                 </div>
                 <input type="range" id="position-slider" min="0" max="100" value="10">
@@ -686,7 +838,7 @@
 
             <div class="slider-group">
                 <div class="slider-label">
-                    <span>📏 字号大小</span>
+                    <span>字号大小</span>
                     <span class="slider-value" id="fontsize-value">24px</span>
                 </div>
                 <input type="range" id="fontsize-slider" min="16" max="48" value="24">
@@ -694,7 +846,7 @@
 
             <div class="slider-group">
                 <div class="slider-label">
-                    <span>📊 行间距</span>
+                    <span>行间距</span>
                     <span class="slider-value" id="lineheight-value">1.8</span>
                 </div>
                 <input type="range" id="lineheight-slider" min="1.2" max="3.0" step="0.1" value="1.8">
@@ -702,7 +854,7 @@
 
             <div class="slider-group">
                 <div class="slider-label">
-                    <span>✏️ 随机涂改概率</span>
+                    <span>随机涂改概率</span>
                     <span class="slider-value" id="scratch-value">3%</span>
                 </div>
                 <input type="range" id="scratch-slider" min="0" max="100" value="3">
@@ -714,7 +866,7 @@
 
             <div class="slider-group">
                 <div class="slider-label">
-                    <span>🖊️ 字体笔画凌乱度</span>
+                    <span>字体笔画凌乱度</span>
                     <span class="slider-value" id="weight-value">5%</span>
                 </div>
                 <input type="range" id="weight-slider" min="0" max="100" value="5">
@@ -725,8 +877,7 @@
             </div>
 
             <div class="action-buttons">
-                <button class="btn btn-primary" onclick="renderHandwriting()">🔄 刷新预览</button>
-                <button class="btn btn-secondary" onclick="downloadImage()">💾 下载图片</button>
+                <button class="btn btn-primary" onclick="renderHandwriting()">刷新预览（重置随机感）</button>
             </div>
         </div>
 
@@ -750,38 +901,27 @@
         </div>
     </div>
 
+    <div id="print-modal" class="print-modal">
+        <div class="print-modal-card">
+            <div class="print-modal-header">
+                <h3>打印预览</h3>
+                <button type="button" class="print-modal-close" id="print-modal-close">×</button>
+            </div>
+            <div class="print-modal-body">
+                <img id="print-preview-image" alt="打印预览" />
+            </div>
+            <div class="print-modal-actions">
+                <button type="button" class="print-modal-btn ghost" id="print-modal-cancel">取消</button>
+                <button type="button" class="print-modal-btn primary" id="print-modal-confirm">打印</button>
+            </div>
+        </div>
+    </div>
+
     <script src="../assets/js/backend-render-client.js"></script>
     <script>
         // ==================== AI 功能模块 ====================
 
-        // AI Prompt 模板
-        const AI_PROMPT_TEMPLATE = `你是专业的学术笔记润色助手。
-
-核心规则：
-1. 严禁使用任何 Emoji 表情
-2. 使用简洁、高密度的专业语言，避免口语化
-3. 深度扩展内容：
-   - 每个概念至少扩展 2-3 个支撑点
-   - 关键名词必须补充定义或解释
-   - 多层级展开（标题→要点→详细说明）
-4. 输出格式：
-   # 主标题（H0）
-   ## 章节标题（H1）
-   ### 小节标题（H2）
-   正文内容...
-   注：补充说明（Note）
-
-输出要求：
-- 内容量：至少 500 字，确保充实
-- 层级清晰，适合手写展示，不要有过多空白内容
-- 保持严肃、专业的学术风格
-
-请对用户输入的文案进行润色和扩展。`;
-
-        // 本地代理地址
-        const PROXY_URL = '/api/chat';
-
-        // AI 润色功能（调用后端接口）
+        // AI 润色功能（调用统一后端 API）
         async function aiPolish() {
             const userInput = textInput.value.trim();
             if (!userInput) {
@@ -791,27 +931,24 @@
 
             const btn = document.getElementById('ai-polish-btn');
             btn.disabled = true;
-            btn.textContent = '🤖 AI 润色中...';
+            btn.textContent = 'AI 润色中...';
 
             try {
-                const response = await fetch('/api/polish', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        text: userInput
-                    })
+                const result = await backendClient.polishNote({
+                    text: userInput,
+                    paper_type: paperSelect.value,
+                    font_size: parseInt(fontsizeSlider.value),
+                    line_height: parseFloat(lineheightSlider.value),
+                    render_scale: 0.5
                 });
 
-                const result = await response.json();
-
-                if (!result.success) {
-                    throw new Error(result.error || 'AI 润色失败');
-                }
-
                 textInput.value = result.polished_text;
-                alert('润色完成！');
+                const ratio = result.metadata?.estimated_fill_ratio;
+                if (typeof ratio === 'number') {
+                    alert(`润色完成！预计纸张铺满度：${Math.round(ratio * 100)}%`);
+                } else {
+                    alert('润色完成！');
+                }
 
                 // 自动刷新预览
                 renderHandwriting();
@@ -819,7 +956,7 @@
                 alert('润色失败：' + error.message);
             } finally {
                 btn.disabled = false;
-                btn.textContent = '🤖 AI 润色文案';
+                btn.textContent = 'AI 润色文案';
             }
         }
 
@@ -840,6 +977,7 @@
         const metaPaper = document.getElementById('meta-paper');
         const metaFont = document.getElementById('meta-font');
         const metaSize = document.getElementById('meta-size');
+        const canvasContainer = document.getElementById('canvas-container');
 
         // 纸张尺寸配置（600dpi 实际像素）
         const paperSizes = {
@@ -868,6 +1006,15 @@
 
         const PREVIEW_BASE_WIDTH = 700;
         const REAL_PAPER_BASE_LINEHEIGHT = 1.8;
+
+        function getPreviewScale(paper) {
+            const containerWidth = Math.max(420, (canvasContainer?.clientWidth || 860) - 40);
+            const containerHeight = Math.max(560, (canvasContainer?.clientHeight || 980) - 40);
+            const widthScale = containerWidth / paper.w;
+            const heightScale = containerHeight / paper.h;
+            const fitScale = Math.min(widthScale, heightScale);
+            return Math.max(0.03, fitScale);
+        }
 
         // 真实纸张版式配置（按原图比例）
         const realPaperLayouts = {
@@ -1076,6 +1223,7 @@
         lineheightSlider.addEventListener('input', renderHandwriting);
         scratchSlider.addEventListener('input', renderHandwriting);
         weightSlider.addEventListener('input', renderHandwriting);
+        window.addEventListener('resize', renderHandwriting);
 
         function updatePreviewMeta() {
             const paperText = paperSelect.options[paperSelect.selectedIndex]?.text || paperSelect.value;
@@ -1101,7 +1249,7 @@
 
             // 获取纸张实际尺寸和预览缩放
             const paper = paperSizes[paperType];
-            const scale = PREVIEW_BASE_WIDTH / paper.w;
+            const scale = getPreviewScale(paper);
             const displayWidth = Math.round(paper.w * scale);
             const displayHeight = Math.round(paper.h * scale);
 
@@ -1273,145 +1421,103 @@
         }
 
         const backendClient = window.createHandwriteBackendClient();
+        const printModal = document.getElementById('print-modal');
+        const printPreviewImage = document.getElementById('print-preview-image');
+        const printModalClose = document.getElementById('print-modal-close');
+        const printModalCancel = document.getElementById('print-modal-cancel');
+        const printModalConfirm = document.getElementById('print-modal-confirm');
 
-        function setActionStatus(action, text, busy) {
-            const allButtons = document.querySelectorAll('button[onclick*="downloadImage"], button[onclick*="printHandwriting"]');
-            allButtons.forEach(btn => {
-                if (!btn.dataset.originalText) {
-                    btn.dataset.originalText = btn.textContent;
-                }
-                btn.disabled = busy;
-            });
-
-            const targetSelector = action === 'print'
-                ? 'button[onclick*="printHandwriting"]'
-                : 'button[onclick*="downloadImage"]';
-
-            if (busy) {
-                document.querySelectorAll(targetSelector).forEach(btn => {
-                    btn.textContent = text;
-                });
-            } else {
-                allButtons.forEach(btn => {
-                    btn.textContent = btn.dataset.originalText || btn.textContent;
-                });
+        function getCanvasDataUrl() {
+            if (!canvas.width || !canvas.height) {
+                throw new Error('画布尚未渲染，请先点击刷新预览');
             }
+            return canvas.toDataURL('image/png');
         }
 
-        function buildRenderPayload() {
-            const text = textInput.value.trim();
-            if (!text) {
-                throw new Error('请先输入文本');
-            }
+        function closePrintModal() {
+            printModal.classList.remove('active');
+        }
 
-            return {
-                text,
-                font_family: fontSelect.value,
-                paper_type: paperSelect.value,
-                paper_background: paperBgSelect.value,
-                position_jitter: parseInt(positionSlider.value),
-                font_size: parseInt(fontsizeSlider.value),
-                line_height: parseFloat(lineheightSlider.value),
-                scratch_rate: parseInt(scratchSlider.value),
-                weight_variation: parseInt(weightSlider.value),
-                note_sloppiness: 12,
-                render_scale: 0.5,
-                random_seed: Date.now() % 2147483647
+        function triggerInlinePrint(dataUrl) {
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'fixed';
+            iframe.style.right = '0';
+            iframe.style.bottom = '0';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = '0';
+            iframe.setAttribute('aria-hidden', 'true');
+            document.body.appendChild(iframe);
+
+            const doc = iframe.contentWindow.document;
+            doc.open();
+            doc.write(`
+                <!DOCTYPE html>
+                <html lang="zh-CN">
+                <head>
+                    <meta charset="UTF-8" />
+                    <title>打印手写体</title>
+                    <style>
+                        html, body { margin: 0; padding: 0; background: #fff; }
+                        body { display: flex; justify-content: center; align-items: flex-start; }
+                        img { width: 100%; max-width: 100%; height: auto; display: block; }
+                        @media print {
+                            @page { margin: 0; size: auto; }
+                            body { padding: 0; }
+                        }
+                    </style>
+                </head>
+                <body><img src="${dataUrl}" alt="打印手写体" /></body>
+                </html>
+            `);
+            doc.close();
+
+            iframe.onload = () => {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+                setTimeout(() => iframe.remove(), 1000);
             };
         }
 
-        async function runBackendRender(action, onProgress) {
-            const payload = buildRenderPayload();
-            return backendClient.runRenderTask(payload, onProgress);
-        }
-
-        // 导出（走后端任务）
-        async function downloadImage(shouldDownload = true) {
+        // 导出（直接导出当前画布）
+        async function downloadImage() {
             try {
-                setActionStatus('export', '⏳ 提交任务中...', true);
-                const { blob, filename } = await runBackendRender('export', (progressText) => {
-                    setActionStatus('export', progressText, true);
-                });
-
-                if (shouldDownload) {
-                    setActionStatus('export', '⏳ 下载文件中...', true);
-                    backendClient.downloadBlob(blob, filename);
-                }
-
-                return await backendClient.blobToDataUrl(blob);
+                const dataUrl = getCanvasDataUrl();
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = `handwriting-${Date.now()}.png`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
             } catch (error) {
                 console.error('Download error:', error);
                 alert('导出失败：' + error.message);
-                throw error;
-            } finally {
-                setActionStatus('export', '', false);
             }
         }
 
-        // 打印（走后端任务）
+        // 打印（当前页面弹窗预览，不新开页面）
         async function printHandwriting() {
             try {
-                setActionStatus('print', '⏳ 提交任务中...', true);
-                const { blob } = await runBackendRender('print', (progressText) => {
-                    setActionStatus('print', progressText, true);
-                });
-                setActionStatus('print', '⏳ 准备打印中...', true);
-
-                const dataUrl = await backendClient.blobToDataUrl(blob);
-                const printWindow = window.open('', '_blank');
-
-                if (!printWindow) {
-                    throw new Error('无法打开打印窗口，请检查浏览器弹窗设置');
-                }
-
-                printWindow.document.open();
-                printWindow.document.write(`
-                    <!DOCTYPE html>
-                    <html lang="zh-CN">
-                    <head>
-                        <meta charset="UTF-8" />
-                        <title>打印手写体</title>
-                        <style>
-                            html, body {
-                                margin: 0;
-                                padding: 0;
-                                background: #fff;
-                            }
-                            body {
-                                display: flex;
-                                justify-content: center;
-                                align-items: flex-start;
-                            }
-                            img {
-                                width: 100%;
-                                max-width: 100%;
-                                height: auto;
-                                display: block;
-                            }
-                            @media print {
-                                @page { margin: 0; size: auto; }
-                                body { padding: 0; }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <img src="${dataUrl}" alt="打印手写体" />
-                    </body>
-                    </html>
-                `);
-                printWindow.document.close();
-
-                printWindow.onload = () => {
-                    printWindow.focus();
-                    printWindow.print();
-                };
+                const dataUrl = getCanvasDataUrl();
+                printPreviewImage.src = dataUrl;
+                printModal.classList.add('active');
             } catch (error) {
                 console.error('Print error:', error);
                 alert('打印失败：' + error.message);
-            } finally {
-                setActionStatus('print', '', false);
             }
         }
+
+        printModalClose.addEventListener('click', closePrintModal);
+        printModalCancel.addEventListener('click', closePrintModal);
+        printModal.addEventListener('click', (event) => {
+            if (event.target === printModal) {
+                closePrintModal();
+            }
+        });
+        printModalConfirm.addEventListener('click', () => {
+            if (!printPreviewImage.src) return;
+            triggerInlinePrint(printPreviewImage.src);
+        });
 
         // 页面加载时自动渲染
         window.onload = function () {

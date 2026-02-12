@@ -21,6 +21,11 @@ class Settings(BaseSettings):
 
     database_url: str | None = None
     render_scale: float = 0.5
+    ai_base_url: str = "https://api.openai.com"
+    ai_api_key: str | None = None
+    ai_model: str = "gpt-5.3-codex"
+    ai_timeout_seconds: int = 90
+    ai_max_tokens: int = 4096
 
     @property
     def resolved_database_url(self) -> str:
