@@ -914,7 +914,7 @@
                 <button class="btn btn-ai ai-polish-btn" onclick="aiPolish()" id="ai-polish-btn">
                     AI 润色文案
                 </button>
-                <button class="btn btn-primary" onclick="renderHandwriting()">刷新预览（重置随机感）</button>
+                <button class="btn btn-primary" onclick="refreshPreviewWithAiFill()" id="refresh-preview-btn">刷新预览（重置随机感）</button>
             </div>
         </div>
 
@@ -1065,48 +1065,7 @@
     <script>
         // ==================== AI 功能模块 ====================
 
-        // AI 润色功能（调用统一后端 API）
-        async function aiPolish() {
-            const userInput = textInput.value.trim();
-            if (!userInput) {
-                alert('请先输入文本');
-                return;
-            }
-
-            // 获取选中的模板
-            const contentTemplate = layoutModeSelect.value;
-
-            const btn = document.getElementById('ai-polish-btn');
-            btn.disabled = true;
-            btn.textContent = 'AI 润色中...';
-
-            try {
-                const result = await backendClient.polishNote({
-                    text: userInput,
-                    paper_type: paperSelect.value,
-                    font_size: parseInt(fontsizeSlider.value),
-                    line_height: parseFloat(lineheightSlider.value),
-                    render_scale: 0.5,
-                    content_template: contentTemplate   // 新增参数
-                });
-
-                textInput.value = result.polished_text;
-                const ratio = result.metadata?.estimated_fill_ratio;
-                if (typeof ratio === 'number') {
-                    alert(`润色完成！预计纸张铺满度：${Math.round(ratio * 100)}%`);
-                } else {
-                    alert('润色完成！');
-                }
-
-                // 自动刷新预览
-                renderHandwriting();
-            } catch (error) {
-                alert('润色失败：' + error.message);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'AI 润色文案';
-            }
-        }
+        let isAIPolishing = false;
 
         // ==================== 原有功能模块 ====================
 
@@ -1123,6 +1082,8 @@
         const lineheightSlider = document.getElementById('lineheight-slider');
         const scratchSlider = document.getElementById('scratch-slider');
         const weightSlider = document.getElementById('weight-slider');
+        const aiPolishBtn = document.getElementById('ai-polish-btn');
+        const refreshPreviewBtn = document.getElementById('refresh-preview-btn');
 
         // 纸张尺寸配置（600dpi 实际像素）
         const paperSizes = {
@@ -1153,6 +1114,86 @@
         const REAL_PAPER_BASE_LINEHEIGHT = 1.8;
         const PREVIEW_DPI = 84;
         const PAPER_BASE_DPI = 600;
+
+        function buildPolishPayload(inputText) {
+            return {
+                text: inputText,
+                paper_type: paperSelect.value,
+                font_size: parseInt(fontsizeSlider.value, 10),
+                line_height: parseFloat(lineheightSlider.value),
+                render_scale: 0.5,
+                content_template: layoutModeSelect.value
+            };
+        }
+
+        async function runAIPolishPipeline(options = {}) {
+            const {
+                source = 'manual',
+                showSuccessAlert = true
+            } = options;
+
+            const userInput = textInput.value.trim();
+            if (!userInput) {
+                alert('请先输入文本');
+                return false;
+            }
+
+            if (isAIPolishing) {
+                return false;
+            }
+
+            isAIPolishing = true;
+            const aiDefaultLabel = 'AI 润色文案';
+            const refreshDefaultLabel = '刷新预览（重置随机感）';
+
+            aiPolishBtn.disabled = true;
+            refreshPreviewBtn.disabled = true;
+            aiPolishBtn.textContent = source === 'refresh' ? 'AI 生成中...' : 'AI 润色中...';
+            refreshPreviewBtn.textContent = source === 'refresh' ? 'AI 铺满中...' : refreshDefaultLabel;
+
+            try {
+                const result = await backendClient.polishNote(buildPolishPayload(userInput));
+                textInput.value = result.polished_text;
+                await renderHandwriting();
+
+                if (showSuccessAlert) {
+                    const ratio = result.metadata?.estimated_fill_ratio;
+                    if (typeof ratio === 'number') {
+                        alert(`润色完成！预计纸张铺满度：${Math.round(ratio * 100)}%`);
+                    } else {
+                        alert('润色完成！');
+                    }
+                }
+
+                return true;
+            } catch (error) {
+                const modeLabel = source === 'refresh' ? '刷新失败' : '润色失败';
+                alert(`${modeLabel}：${error.message}`);
+                return false;
+            } finally {
+                isAIPolishing = false;
+                aiPolishBtn.disabled = false;
+                refreshPreviewBtn.disabled = false;
+                aiPolishBtn.textContent = aiDefaultLabel;
+                refreshPreviewBtn.textContent = refreshDefaultLabel;
+            }
+        }
+
+        // AI 润色按钮：手动触发模型生成+铺满
+        async function aiPolish() {
+            await runAIPolishPipeline({
+                source: 'manual',
+                showSuccessAlert: true
+            });
+        }
+
+        // 刷新按钮：先调模型按当前模板铺满，再重渲染画布
+        async function refreshPreviewWithAiFill() {
+            await runAIPolishPipeline({
+                source: 'refresh',
+                showSuccessAlert: false
+            });
+        }
 
         // 真实纸张版式配置（按原图比例）
         const realPaperLayouts = {
