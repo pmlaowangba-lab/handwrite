@@ -98,7 +98,28 @@ python scripts/generate.py --file my_text.txt
 - **前端**：HTML5 Canvas + JavaScript
 - **字体**：13 种本地手写字体（清松手写体系列、沐瑶手写体等）
 - **AI 集成**：Claude API / OpenAI API
-- **后端**：Python 3（用于启动）
+- **后端（旧）**：Python Flask（静态服务 + AI 润色）
+- **后端（Phase 1 新增）**：FastAPI + SQLAlchemy（渲染任务 API）
+
+## 🧱 后端化进度（Phase 1）
+
+已新增 `backend/` 目录，提供后端骨架能力：
+
+- `POST /api/v1/render/tasks`：提交渲染任务
+- `GET /api/v1/render/tasks/{task_id}`：查询任务状态
+- `GET /api/v1/files/{task_id}`：下载渲染结果
+- `GET /api/v1/assets/fonts|papers`：查询资源
+- `GET /api/v1/health`：健康检查
+
+启动方式：
+
+```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 9000
+```
 
 ## 📐 参数说明
 
@@ -173,4 +194,3 @@ text-to-handwriting/
 **版本**：v3.0.0
 **更新日期**：2026-02-11
 **作者**：老王 (pmlaowangba)
-

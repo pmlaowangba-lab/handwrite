@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>手写体生成器 - Handwriting Generator</title>
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <!-- 本地手写字体 -->
     <style>
         @font-face {
@@ -89,19 +94,20 @@
 
     <style>
         :root {
-            --bg-main: #e8e6df;
-            --surface: rgba(255, 255, 255, 0.92);
-            --surface-strong: rgba(255, 255, 255, 0.94);
-            --text-1: #0f172a;
+            --bg-main: #F8FAFC;
+            --surface: rgba(255, 255, 255, 0.95);
+            --surface-strong: rgba(255, 255, 255, 0.98);
+            --text-1: #1E293B;
             --text-2: #475569;
             --text-3: #64748b;
-            --border: rgba(148, 163, 184, 0.3);
-            --primary: #1e3a8a;
-            --primary-dark: #172554;
-            --purple: #6d28d9;
-            --green: #0f766e;
-            --card-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
-            --focus: 0 0 0 3px rgba(30, 58, 138, 0.16);
+            --border: #E2E8F0;
+            --primary: #3B82F6;
+            --primary-hover: #2563EB;
+            --cta: #F97316;
+            --cta-hover: #EA580C;
+            --success: #10B981;
+            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --focus: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         * {
@@ -111,7 +117,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: var(--bg-main);
             min-height: 100vh;
             overflow: hidden;
@@ -119,14 +125,15 @@
         }
 
         .top-bar {
-            height: 56px;
-            background: #586a74;
-            border-bottom: 1px solid rgba(15, 23, 42, 0.2);
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 10px;
+            padding: 0 24px;
             color: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .brand {
@@ -136,20 +143,22 @@
         }
 
         .brand-icon {
-            width: 34px;
-            height: 34px;
+            width: 40px;
+            height: 40px;
             border-radius: 10px;
-            background: #1e3a5f;
+            background: rgba(255, 255, 255, 0.2);
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.3);
+            font-size: 20px;
+            backdrop-filter: blur(10px);
         }
 
         .brand-title {
-            font-size: 32px;
-            font-weight: 700;
+            font-size: 20px;
+            font-weight: 600;
             line-height: 1;
+            font-family: 'Poppins', sans-serif;
         }
 
         .brand-title span {
@@ -161,29 +170,49 @@
 
         .container {
             display: flex;
-            gap: 16px;
-            height: calc(100vh - 56px);
-            padding: 12px;
+            gap: 20px;
+            height: calc(100vh - 64px);
+            padding: 20px;
         }
 
-        .left-panel {
-            width: 420px;
-            min-width: 320px;
-            max-width: 440px;
-            background: rgba(248, 248, 248, 0.9);
+        .left-column {
+            width: 35%;
+            min-width: 280px;
+            background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 14px 16px;
+            border-radius: 16px;
+            padding: 24px;
             overflow-y: auto;
             box-shadow: var(--card-shadow);
-            backdrop-filter: blur(6px);
+            display: flex;
+            flex-direction: column;
         }
 
-        .left-panel::-webkit-scrollbar {
+        .left-column::-webkit-scrollbar {
             width: 8px;
         }
 
-        .left-panel::-webkit-scrollbar-thumb {
+        .left-column::-webkit-scrollbar-thumb {
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.45);
+        }
+
+        .middle-column {
+            width: 20%;
+            min-width: 200px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            overflow-y: auto;
+            box-shadow: var(--card-shadow);
+        }
+
+        .middle-column::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .middle-column::-webkit-scrollbar-thumb {
             border-radius: 999px;
             background: rgba(148, 163, 184, 0.45);
         }
@@ -192,7 +221,7 @@
             display: none;
         }
 
-        .left-panel h1 {
+        .left-column h1 {
             font-size: 24px;
             line-height: 1.2;
             margin-bottom: 8px;
@@ -200,7 +229,7 @@
             letter-spacing: 0.2px;
         }
 
-        .left-panel p {
+        .left-column p {
             font-size: 13px;
             line-height: 1.6;
             color: var(--text-2);
@@ -209,21 +238,21 @@
         .section-title {
             display: flex;
             align-items: center;
-            margin: 14px 0 12px;
-            color: #475569;
-            font-weight: 700;
-            font-size: 11px;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
+            margin: 20px 0 16px;
+            color: var(--text-1);
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.02em;
+            font-family: 'Poppins', sans-serif;
         }
 
         .section-title::before {
             content: '';
-            width: 10px;
-            height: 2px;
-            border-radius: 999px;
-            margin-right: 8px;
-            background: #64748b;
+            width: 3px;
+            height: 16px;
+            border-radius: 2px;
+            margin-right: 10px;
+            background: var(--primary);
         }
 
         .form-group {
@@ -233,8 +262,8 @@
         .form-group label {
             display: block;
             font-size: 13px;
-            font-weight: 700;
-            color: #334155;
+            font-weight: 600;
+            color: var(--text-2);
             margin-bottom: 8px;
         }
 
@@ -243,13 +272,13 @@
         .form-group input[type="text"],
         .form-group input[type="password"] {
             width: 100%;
-            border: 1px solid rgba(148, 163, 184, 0.35);
-            border-radius: 12px;
-            padding: 11px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
             font-size: 14px;
-            color: #0f172a;
-            background: rgba(255, 255, 255, 0.95);
-            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+            color: var(--text-1);
+            background: #fff;
+            transition: all 0.2s ease;
             font-family: inherit;
         }
 
@@ -264,7 +293,9 @@
         .form-group input[type="text"]:focus,
         .form-group input[type="password"]:focus {
             outline: none;
-            background: #fff;
+            border-color: var(--primary);
+            box-shadow: var(--focus);
+        }
             border-color: rgba(37, 99, 235, 0.5);
             box-shadow: var(--focus);
         }
@@ -315,7 +346,7 @@
             width: 100%;
             height: 6px;
             border-radius: 999px;
-            background: linear-gradient(90deg, #bfdbfe 0%, #dbeafe 100%);
+            background: var(--border);
             outline: none;
             -webkit-appearance: none;
         }
@@ -326,37 +357,52 @@
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), #60a5fa);
-            border: 2px solid #fff;
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+            background: var(--primary);
+            border: 3px solid #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: var(--primary-hover);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         input[type="range"]::-moz-range-thumb {
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), #60a5fa);
-            border: 2px solid #fff;
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+            background: var(--primary);
+            border: 3px solid #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            background: var(--primary-hover);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
             cursor: pointer;
         }
 
         .btn {
             width: 100%;
             border: none;
-            border-radius: 12px;
-            padding: 10px 14px;
-            font-size: 13px;
-            font-weight: 700;
+            border-radius: 10px;
+            padding: 14px 20px;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
             color: #fff;
-            transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+            transition: all 0.2s ease;
+            font-family: 'Poppins', sans-serif;
         }
 
         .btn:hover {
             transform: translateY(-1px);
-            filter: brightness(1.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .btn:active {
@@ -364,24 +410,34 @@
         }
 
         .btn-primary {
-            background: #1e2f4e;
-            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25);
-            margin-bottom: 10px;
+            background: var(--primary);
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
         }
 
         .btn-secondary {
-            background: linear-gradient(135deg, var(--green), #115e59);
-            box-shadow: 0 8px 16px rgba(15, 118, 110, 0.22);
+            background: var(--success);
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: #059669;
         }
 
         .btn-ai {
-            margin-top: 10px;
-            background: linear-gradient(135deg, var(--purple), #6d28d9);
-            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.24);
+            background: var(--cta);
+            box-shadow: 0 2px 4px rgba(249, 115, 22, 0.2);
+        }
+
+        .btn-ai:hover {
+            background: var(--cta-hover);
         }
 
         .btn-ai:disabled {
-            background: #9ca3af;
+            background: #9CA3AF;
             box-shadow: none;
             cursor: not-allowed;
             transform: none;
@@ -433,7 +489,9 @@
 
         .btn-group {
             display: flex;
-            gap: 8px;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 20px;
         }
 
         .btn-group .btn {
@@ -478,34 +536,35 @@
         .global-btn {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 12px;
-            padding: 7px 14px;
-            font-size: 13px;
-            font-weight: 700;
+            gap: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease;
+            transition: all 0.2s ease;
+            font-family: 'Poppins', sans-serif;
         }
 
         .global-btn:hover {
             transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .global-btn.print {
             background: rgba(255, 255, 255, 0.95);
-            color: #1f2937;
-            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.16);
+            color: var(--text-1);
         }
 
         .global-btn.export {
-            background: #0f213f;
+            background: rgba(255, 255, 255, 0.2);
             color: #fff;
-            border-color: rgba(15, 23, 42, 0.65);
-            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.24);
+            backdrop-filter: blur(10px);
         }
 
-        .right-preview {
+        .right-column {
+            width: 45%;
             flex: 1;
             display: flex;
             align-items: stretch;
@@ -738,10 +797,10 @@
                 padding: 12px;
             }
 
-            .left-panel {
+            .left-column,
+            .middle-column {
                 width: 100%;
                 min-width: 0;
-                max-width: none;
             }
 
             .preview-toolbar {
@@ -763,7 +822,14 @@
 <body>
     <header class="top-bar">
         <div class="brand">
-            <span class="brand-icon">✒</span>
+            <span class="brand-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                    <path d="M2 2l7.586 7.586"></path>
+                    <circle cx="11" cy="11" r="2"></circle>
+                </svg>
+            </span>
             <h1 class="brand-title">老王手写体 <span>Pro</span></h1>
         </div>
         <div class="global-actions">
@@ -772,29 +838,27 @@
         </div>
     </header>
     <div class="container">
-        <!-- 左侧参数面板 -->
-        <div class="left-panel">
-            <div class="panel-header">
-                <h1>手写体生成器</h1>
-                <p>输入文本，实时生成手写效果，适合录屏、教学与内容创作。</p>
-            </div>
-
+        <!-- 左侧列：文本编辑 -->
+        <div class="left-column">
             <div class="section-title">内容编辑</div>
-            <div class="form-group text-editor">
-                <details open>
-                    <summary>展开 / 收起正文输入</summary>
-                    <textarea id="text-input" placeholder="在这里输入你想要转换的文字...">这是一段手写体测试文字。
+            <div class="form-group text-editor" style="flex: 1; display: flex; flex-direction: column;">
+                <textarea id="text-input" style="flex: 1; min-height: 200px;" placeholder="在这里输入你想要转换的文字...">这是一段手写体测试文字。
 你可以输入任何内容，
 系统会自动生成手写效果。
 
 适合用于视频录制、
 笔记展示等场景。</textarea>
-                    <button class="btn btn-ai ai-polish-btn" onclick="aiPolish()" id="ai-polish-btn">
-                        AI 润色文案
-                    </button>
-                </details>
             </div>
+            <div class="action-buttons">
+                <button class="btn btn-ai ai-polish-btn" onclick="aiPolish()" id="ai-polish-btn">
+                    AI 润色文案
+                </button>
+                <button class="btn btn-primary" onclick="renderHandwriting()">刷新预览（重置随机感）</button>
+            </div>
+        </div>
 
+        <!-- 中间列：参数控制 -->
+        <div class="middle-column">
             <div class="section-title">视觉参数</div>
             <div class="form-group">
                 <label for="font-select">字体选择</label>
@@ -816,11 +880,12 @@
             </div>
 
             <div class="form-group">
-                <label for="layout-mode-select">渲染模式</label>
+                <label for="layout-mode-select">文案模板</label>
                 <select id="layout-mode-select">
-                    <option value="uniform" selected>均匀模式（横竖均匀）</option>
-                    <option value="structured-fill">结构铺满模式（分区排版）</option>
-                    <option value="mindmap-annotated">思维导图模式（结构+标注）</option>
+                    <option value="concept" selected>概念讲解（知识科普、理论框架）</option>
+                    <option value="practical">干货流程（操作指南、方法步骤）</option>
+                    <option value="full_process">完整流程（端到端、多阶段设计）</option>
+                    <option value="decision">决策分析（选择困境、问题解决）</option>
                 </select>
             </div>
 
@@ -905,26 +970,11 @@
                     <span>歪七扭八</span>
                 </div>
             </div>
-
-            <div class="action-buttons">
-                <button class="btn btn-primary" onclick="renderHandwriting()">刷新预览（重置随机感）</button>
-            </div>
         </div>
 
-        <div class="right-preview">
+        <!-- 右侧列：画布预览 -->
+        <div class="right-column">
             <div class="preview-shell">
-                <div class="preview-toolbar">
-                    <div>
-                        <p class="preview-eyebrow">Live Preview</p>
-                        <h2 class="preview-title">手写画布</h2>
-                    </div>
-                    <div class="preview-meta">
-                        <span class="meta-chip" id="meta-paper">A4纸-纵向</span>
-                        <span class="meta-chip" id="meta-font">清松手写体5-行楷</span>
-                        <span class="meta-chip" id="meta-mode">均匀模式</span>
-                        <span class="meta-chip" id="meta-size">24px</span>
-                    </div>
-                </div>
                 <div id="canvas-container">
                     <div class="paper-stage">
                         <canvas id="handwriting-canvas"></canvas>
@@ -962,6 +1012,9 @@
                 return;
             }
 
+            // 获取选中的模板
+            const contentTemplate = layoutModeSelect.value;
+
             const btn = document.getElementById('ai-polish-btn');
             btn.disabled = true;
             btn.textContent = 'AI 润色中...';
@@ -972,7 +1025,8 @@
                     paper_type: paperSelect.value,
                     font_size: parseInt(fontsizeSlider.value),
                     line_height: parseFloat(lineheightSlider.value),
-                    render_scale: 0.5
+                    render_scale: 0.5,
+                    content_template: contentTemplate   // 新增参数
                 });
 
                 textInput.value = result.polished_text;
@@ -1008,10 +1062,6 @@
         const lineheightSlider = document.getElementById('lineheight-slider');
         const scratchSlider = document.getElementById('scratch-slider');
         const weightSlider = document.getElementById('weight-slider');
-        const metaPaper = document.getElementById('meta-paper');
-        const metaFont = document.getElementById('meta-font');
-        const metaMode = document.getElementById('meta-mode');
-        const metaSize = document.getElementById('meta-size');
 
         // 纸张尺寸配置（600dpi 实际像素）
         const paperSizes = {
@@ -1254,18 +1304,13 @@
         window.addEventListener('resize', renderHandwriting);
 
         function updatePreviewMeta() {
-            const paperText = paperSelect.options[paperSelect.selectedIndex]?.text || paperSelect.value;
-            const fontText = fontSelect.options[fontSelect.selectedIndex]?.text || fontSelect.value;
             const modeLabelMap = {
-                'uniform': '均匀模式',
-                'structured-fill': '结构铺满模式',
-                'mindmap-annotated': '思维导图模式'
+                'concept': '概念讲解',
+                'practical': '干货流程',
+                'full_process': '完整流程',
+                'decision': '决策分析'
             };
-            const modeText = modeLabelMap[layoutModeSelect.value] || '均匀模式';
-            if (metaPaper) metaPaper.textContent = paperText.split('(')[0].trim();
-            if (metaFont) metaFont.textContent = fontText;
-            if (metaMode) metaMode.textContent = modeText;
-            if (metaSize) metaSize.textContent = `${fontsizeSlider.value}px`;
+            // meta-chip 已移除，仅保留函数供内部调用
         }
 
         function parseStructuredBlocks(rawText) {
@@ -1946,7 +1991,9 @@
                 lineHeight
             });
 
-            if (layoutModeSelect.value === 'structured-fill') {
+            const layoutMode = layoutModeSelect.value;
+
+            if (layoutMode === 'practical' || layoutMode === 'full_process') {
                 renderStructuredFillMode(ctx, {
                     text,
                     layout,
@@ -1956,7 +2003,7 @@
                     positionJitter,
                     weightVariation
                 });
-            } else if (layoutModeSelect.value === 'mindmap-annotated') {
+            } else if (layoutMode === 'decision') {
                 renderMindmapAnnotatedMode(ctx, {
                     text,
                     layout,

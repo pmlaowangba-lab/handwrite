@@ -1,0 +1,154 @@
+openapi: 3.0.3
+info:
+  title: Handwrite Backend API
+  version: 0.1.0
+  description: |
+    Phase 1 后端 API 草案。当前支持渲染任务提交、状态查询、文件下载和资源查询。
+servers:
+  - url: http://127.0.0.1:9000
+paths:
+  /api/v1/health:
+    get:
+      tags: [health]
+      summary: 健康检查
+      responses:
+        "200":
+          description: OK
+  /api/v1/assets/fonts:
+    get:
+      tags: [assets]
+      summary: 查询可用字体
+      responses:
+        "200":
+          description: 字体列表
+  /api/v1/assets/papers:
+    get:
+      tags: [assets]
+      summary: 查询纸张背景
+      responses:
+        "200":
+          description: 纸张列表
+  /api/v1/render/tasks:
+    post:
+      tags: [render]
+      summary: 提交渲染任务
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RenderTaskCreateRequest"
+      responses:
+        "202":
+          description: 任务已接收
+  /api/v1/render/tasks/{task_id}:
+    get:
+      tags: [render]
+      summary: 查询渲染任务状态
+      parameters:
+        - in: path
+          name: task_id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 任务详情
+        "404":
+          description: 任务不存在
+  /api/v1/files/{task_id}:
+    get:
+      tags: [files]
+      summary: 下载渲染结果
+      parameters:
+        - in: path
+          name: task_id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: PNG 文件流
+        "409":
+          description: 任务尚未完成
+  /api/v1/templates:
+    get:
+      tags: [templates]
+      summary: 模板列表
+      responses:
+        "200":
+          description: OK
+    post:
+      tags: [templates]
+      summary: 创建模板
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TemplateCreateRequest"
+      responses:
+        "201":
+          description: 创建成功
+components:
+  schemas:
+    RenderTaskCreateRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+        font_family:
+          type: string
+          default: 清松手写体5-行楷
+        paper_type:
+          type: string
+          enum: [a4-portrait, a4-landscape, b5-portrait, b5-landscape, a3-portrait, a3-landscape]
+          default: a4-portrait
+        paper_background:
+          type: string
+          enum: [white, cream, lightgray, real-grid-white, real-blank-white, real-lined-cream, real-lined-vintage, real-blank-used]
+          default: white
+        position_jitter:
+          type: integer
+          minimum: 0
+          maximum: 100
+          default: 10
+        font_size:
+          type: integer
+          default: 24
+        line_height:
+          type: number
+          default: 1.8
+        scratch_rate:
+          type: integer
+          default: 3
+        weight_variation:
+          type: integer
+          default: 5
+        note_sloppiness:
+          type: integer
+          default: 12
+        render_scale:
+          type: number
+          default: 0.5
+        random_seed:
+          type: integer
+          nullable: true
+        user_id:
+          type: string
+          nullable: true
+    TemplateCreateRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        config_json:
+          type: object
+        created_by:
+          type: string
+          nullable: true
+        note:
+          type: string
+          nullable: true

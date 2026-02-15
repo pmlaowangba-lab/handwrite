@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Handwriting Pro</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              navy: {
+                800: "#1B2A41",
+                900: "#0F172A",
+              },
+              cream: {
+                50: "#FFFAF0",
+                100: "#FDFBF7",
+                200: "#F3EFE0",
+              },
+              accent: "#C6A87C",
+            },
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              handwriting: ["Ma Shan Zheng", "cursive"],
+              caveat: ["Caveat", "cursive"],
+              kalam: ["Kalam", "cursive"],
+            },
+            boxShadow: {
+              'card': '0 20px 40px -10px rgba(0, 0, 0, 0.1), 0 10px 20px -10px rgba(0,0,0,0.05)',
+              'paper': '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(0,0,0,0.05)',
+              'inner-tight': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+            }
+          },
+        },
+      };
+    </script>
+    <style>
+      @font-face {
+        font-family: '清松手写体1-圆润';
+        src: url('/fonts/清松手寫體1：圓潤.ttf') format('truetype');
+        font-display: swap;
+      }
+      @font-face {
+        font-family: '清松手写体2-秀气';
+        src: url('/fonts/清松手寫體2：秀氣.ttf') format('truetype');
+        font-display: swap;
+      }
+      @font-face {
+        font-family: '清松手写体3-呆萌';
+        src: url('/fonts/清松手寫體3：呆萌.ttf') format('truetype');
+        font-display: swap;
+      }
+      @font-face {
+        font-family: '清松手写体4-POP';
+        src: url('/fonts/清松手寫體4：POP.ttf') format('truetype');
+        font-display: swap;
+      }
+      @font-face {
+        font-family: '清松手写体5-行楷';
+        src: url('/fonts/清松手寫體5：行楷.ttf') format('truetype');
+        font-display: swap;
+      }
+      @font-face {
+        font-family: '清松手写体6-Q萌';
+        src: url('/fonts/清松手寫體6：Q萌.ttf') format('truetype');
+        font-display: swap;
+      }
+      @font-face {
+        font-family: '清松手写体7-飘逸';
+        src: url('/fonts/清松手寫體7：飄逸.ttf') format('truetype');
+        font-display: swap;
+      }
+      @font-face {
+        font-family: '清松手写体8-随性';
+        src: url('/fonts/清松手寫體8：隨性.ttf') format('truetype');
+        font-display: swap;
+      }
+      @font-face {
+        font-family: '沐瑶软笔手写体';
+        src: url('/fonts/沐瑶软笔手写体.ttf') format('truetype');
+        font-display: swap;
+      }
+      @font-face {
+        font-family: '沐瑶随心手写体';
+        src: url('/fonts/沐瑶随心手写体.ttf') format('truetype');
+        font-display: swap;
+      }
+      @font-face {
+        font-family: '内海字体';
+        src: url('/fonts/內海字體-Regular-Lite.ttf') format('truetype');
+        font-display: swap;
+      }
+      @font-face {
+        font-family: '她屿山海';
+        src: url('/fonts/她屿山海.ttf') format('truetype');
+        font-display: swap;
+      }
+      @font-face {
+        font-family: '栗壳坚坚体';
+        src: url('/fonts/栗壳坚坚体.ttf') format('truetype');
+        font-display: swap;
+      }
+
+      body {
+        background-color: #E8E6DF;
+        background-image: radial-gradient(#D6D3C9 1px, transparent 1px);
+        background-size: 20px 20px;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: rgba(27, 42, 65, 0.1);
+        border-radius: 20px;
+      }
+      input[type="range"] {
+        -webkit-appearance: none;
+        background: transparent;
+        width: 100%;
+        display: block;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        height: 18px;
+        width: 18px;
+        border-radius: 50%;
+        background: #1B2A41;
+        border: 2px solid #fff;
+        cursor: pointer;
+        margin-top: -6px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      }
+      input[type="range"]::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 6px;
+        cursor: pointer;
+        background: #E2E8F0;
+        border-radius: 999px;
+      }
+
+      .font-qingsong-1 { font-family: '清松手写体1-圆润', cursive; }
+      .font-qingsong-2 { font-family: '清松手写体2-秀气', cursive; }
+      .font-qingsong-3 { font-family: '清松手写体3-呆萌', cursive; }
+      .font-qingsong-4 { font-family: '清松手写体4-POP', cursive; }
+      .font-qingsong-5 { font-family: '清松手写体5-行楷', cursive; }
+      .font-qingsong-6 { font-family: '清松手写体6-Q萌', cursive; }
+      .font-qingsong-7 { font-family: '清松手写体7-飘逸', cursive; }
+      .font-qingsong-8 { font-family: '清松手写体8-随性', cursive; }
+      .font-muyao-1 { font-family: '沐瑶软笔手写体', cursive; }
+      .font-muyao-2 { font-family: '沐瑶随心手写体', cursive; }
+      .font-neihai { font-family: '内海字体', cursive; }
+      .font-shanhai { font-family: '她屿山海', cursive; }
+      .font-like { font-family: '栗壳坚坚体', cursive; }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
